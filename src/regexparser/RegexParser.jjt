@@ -1,0 +1,104 @@
+/**
+ * JJTree template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */options{
+  LOOKAHEAD = 2;  static = true;}PARSER_BEGIN(RegexParser)package regexparser;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
+import faops.FA;
+import stmtparser.Operations;
+import gui.FADrawer;
+public class RegexParser{  public static void main(String args [])  {
+    new RegexParser(System.in);
+    while (true)
+    {
+      try
+      {
+        System.out.println("Reading from standard input...");
+        SimpleNode n = RegexParser.Start();
+        System.out.println("Printing...");
+        n.dump("");
+        System.out.println("\n");
+        eval(n);
+        RegexParser.ReInit(System.in);
+      }
+      catch (Exception e)
+      {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+        e.printStackTrace();
+        break;
+      }
+    }
+  }
+  public static FA eval(SimpleNode node) throws Exception
+  {
+    FA out = null;
+    switch(node.id){
+		case RegexParserTreeConstants.JJTOP:
+			if(node.isBinary()){
+			  	SimpleNode lhs = (SimpleNode) node.jjtGetChild(0);
+				SimpleNode rhs = (SimpleNode) node.jjtGetChild(1);
+				if(node.op == Operations.Op.UNI){
+					FA fa = eval(lhs);
+					FA fb = eval(rhs);
+					out = faops.FA.quickUnion(fa,fb);
+				} else if(node.op == Operations.Op.CAT){
+					FA fa = eval(lhs);
+					FA fb = eval(rhs);
+					out = faops.FA.cat(fa,fb);
+				} else throw new Exception("Invalid Op");
+			}
+			else {
+			  SimpleNode arg = (SimpleNode) node.jjtGetChild(0);
+			  if(node.op == Operations.Op.STAR){
+			    out = faops.FA.star(eval(arg));
+			  } else throw new Exception("Invalid Op");
+			}
+			break;
+		case RegexParserTreeConstants.JJTTERMINAL:
+			out = FA.fromSymbol(node.symbol);
+			break;
+		default:
+			  	out = eval((SimpleNode)node.jjtGetChild(0));
+			
+    }
+	return out;
+  }
+  public static FA parseString(String regex) throws Exception{
+	  	InputStream stream = new ByteArrayInputStream(regex.getBytes(StandardCharsets.UTF_8));
+	  	RegexParser.ReInit(stream);
+	  	return eval(RegexParser.Start());
+  }}PARSER_END(RegexParser)SKIP :{  " "| "\t"| "\r"| < "//" (~[ "\n", "\r" ])*    (      "\n"    | "\r"    | "\r\n"    ) >| < "/*" (~[ "*" ])* "*"    (      ~[ "/" ] (~[ "*" ])* "*"    )*    "/" >}TOKEN : /* LITERALS */{
+  < ENDL : "\n">| < OPEN : "(">
+| < CLOSE : ")">
+| < STAR : "*">
+| < PLUS : "+">
+| < EPSILON : "!">
+| < SYM : ~["(",")","*","+","!"] >
+}SimpleNode Start() :{}{  Expression() (< ENDL >| < EOF >) 
+    {    return jjtThis;  }}void Expression() #void:
+{}
+{
+  Expression1() [ < PLUS > Expression() {jjtThis.setOp("+");} #Op(2)]
+}
+
+void Expression1()  #void :
+{}
+{
+  Expression2() [Expression1(){ jjtThis.setOp(".");} #Op(2)]
+}
+
+void Expression2() #void :
+{}
+{
+  ((< OPEN > Expression() < CLOSE >)| Terminal()) [< STAR > {jjtThis.setOp("star");} #Op(1)]
+}
+
+void Terminal() #Terminal:
+{Token t;}
+{
+  t = < SYM >  {
+    jjtThis.symbol = t.image;  }}
+

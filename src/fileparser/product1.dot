@@ -1,0 +1,9 @@
+digraph name {
+	rankdir=LR;
+    node [shape=point,color=white,fontcolor=white]; start;
+    node [shape=doublecircle, color=black, fontcolor=black];Q;
+    node [shape=circle,color=black, fontcolor=black]; Q1;
+    start -> Q;
+    Q -> Q1 [label="a"];
+    Q1 -> Q [label="a"];
+}

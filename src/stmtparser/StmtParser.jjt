@@ -1,0 +1,118 @@
+options{
+  LOOKAHEAD= 10;
+  NODE_FACTORY = "StmtNodeFactory";}PARSER_BEGIN(StmtParser)package stmtparser;import faops.FA;import fileparser.FileParser;import java.io.File;import java.io.FileInputStream;import java.io.FileOutputStream;import java.io.PrintStream;import java.util.HashMap;import java.util.Map;import gui.FADrawer;import regexparser.RegexParser;
+public class StmtParser{  private static Map<String, FA> vars = new HashMap< String, FA>();  private static int drawNumber = 0;  public static void main(String args [])  {    new StmtParser(System.in);    new FileParser(System.in);    new RegexParser(System.in);    while (true)    {      try      {
+        System.out.println("Reading from standard input...");        SimpleNode n = StmtParser.Root();
+        System.out.println("Printing...");        n.dump("");        System.out.println("\n");        eval(n);        StmtParser.ReInit(System.in);      }      catch (Exception e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());
+        e.printStackTrace();
+        break;      }    }  }  public static FA eval(SimpleNode node) throws Exception  {    FA out = null;    switch(node.id){		case StmtParserTreeConstants.JJTASSIGN:			AssignNode an = (AssignNode) node;			if (an.isDecl()) {				if(vars.get(an.varName) != null)					throw new Exception("Variable " + an.varName + " was redeclared");			}			out = eval((SimpleNode)node.jjtGetChild(0));			vars.put(an.varName, out);			break;		case StmtParserTreeConstants.JJTOP:			OpNode on = (OpNode) node;			if(on.isBinary()){			  	SimpleNode lhs = (SimpleNode) node.jjtGetChild(0);				SimpleNode rhs = (SimpleNode) node.jjtGetChild(1);				if(on.op == Operations.Op.DUMP){					out = eval(lhs);					out.toDot(new PrintStream(new FileOutputStream("src/fileparser/" + ((StringNode)rhs).getString(), false)));				}				else if(on.op == Operations.Op.UNI){					FA fa = eval(lhs);					FA fb = eval(rhs);					out = faops.FA.quickUnion(fa,fb);				} else if(on.op == Operations.Op.CAT){					FA fa = eval(lhs);					FA fb = eval(rhs);					out = faops.FA.cat(fa,fb);				} else if(on.op == Operations.Op.INT){				  	FA fa = eval(lhs);					FA fb = eval(rhs);					out = faops.FA.product(null,fa,fb);				} else if(on.op == Operations.Op.XOR){				} else if(on.op == Operations.Op.MUL){				} else if(on.op == Operations.Op.DIF){				}			}			else {			  SimpleNode arg = (SimpleNode) node.jjtGetChild(0);			  if(on.op == Operations.Op.NEW){			    FileParser.ReInit(new FileInputStream(new File(FileParser.class.getResource(((StringNode)arg).getString()).getPath())));			    out = FileParser.toFa(FileParser.Start());			  } else if(on.op == Operations.Op.FROMREGEX){			    			    try			    {			    	out = RegexParser.parseString(((StringNode)arg).getString());			   	} catch(Exception e) {			   	  System.err.println("Error in Regex");			   	  e.printStackTrace();			   	}			  } else if(on.op == Operations.Op.PRINT){			    out = eval(arg);			    System.out.println(out);			  } else if(on.op == Operations.Op.DRAW){			    out = eval(arg);			    new FADrawer(out, ++drawNumber);			  } else if(on.op == Operations.Op.STAR){			    out = faops.FA.star(eval(arg));			  } else if(on.op == Operations.Op.REV){			  } else if(on.op == Operations.Op.NOT){			  } else if(on.op == Operations.Op.TODFA){			    out = eval(arg).toDFA();			  } else if(on.op == Operations.Op.MIN){			  } 			}			break;		case StmtParserTreeConstants.JJTSTRING:			StringNode sn = (StringNode) node;			break;		case StmtParserTreeConstants.JJTSYMBOL:			SymNode syn = (SymNode) node;			out = vars.get(syn.varName);			if(out == null)				throw new Exception("Variable " + syn.varName + " does not exist");			break;		default:			for(int i = 0; i < node.jjtGetNumChildren(); i++){			  eval((SimpleNode)node.jjtGetChild(i));			}    }	return out;  }}PARSER_END(StmtParser)SKIP :{  " "| "\t"| "\r"| < "//" (~[ "\n", "\r" ])*    (      "\n"    | "\r"    | "\r\n"    ) >| < "/*" (~[ "*" ])* "*"    (      ~[ "/" ] (~[ "*" ])* "*"    )*    "/" >}TOKEN : /* IDENTIFIERS */{
+    < OPEN : "(">
+  | < CLOSE : ")">
+  | < NEW : "new">  | < FROMREGEX : "fromRegex">
+  | < MUL : "x">
+  | < DOT : ".">
+  | < REV : "rev">
+  | < NOT : "not">
+  | < STAR : "star">
+  | < INT : "int">
+  | < UN : "+">  | < DIF : "-">
+  | < XOR : "xor">
+  | < FA : "FA">
+  | < TODFA : "dfa">
+  | < MIN : "min">
+  | < DUMP : "dump">
+  | < PRINT : "print">  | < DRAW : "draw">
+  | < STRINGDELIM : "\"">
+  | < SYM : (["A"-"Z","a"-"z"])(["0"-"9","A"-"Z","a"-"z"])* >  | < STRING: "\"" (~["\"","\n","\r",";","="])* "\""  >
+  | < END_STMT : ";">
+  | < ENDL : "\n">}SimpleNode Root() :{}{
+  (Stmt() (< END_STMT >)+)+ < ENDL >
+  { return jjtThis;}}
+
+void Stmt() #void: {String decl = null;}
+{
+  ([decl = Decl()] Expression0() {((AssignNode)jjtThis).varName = decl; ((AssignNode)jjtThis).decl = true;}) #Assign(decl != null) 
+}
+void Expression0() #void: {String assign = null;}
+{
+  ([assign = Assign()] Expression() {((AssignNode)jjtThis).varName = assign;}) #Assign(assign != null) 
+}
+void Expression() #void: {String op;}
+{
+  (Expression2() [ (op = BinaryOpTier1()) Expression() { ((OpNode)jjtThis).setOp(op); } #Op(2)])
+}
+
+void Expression2() #void: {String op;}
+{
+  (Expression3() [ (op = BinaryOpTier2()) Expression() { ((OpNode)jjtThis).setOp(op); } #Op(2)  ])
+}
+
+void Expression3() #void: {String str;}
+{
+   (UnaryOp() | Symbol() |(< OPEN > Expression0() < CLOSE >)|New()) [str = Func(){((OpNode)jjtThis).setOp(str);} #Op(2)]
+}
+
+String Func() #void : {Token op;}
+{	< DOT > op = < DUMP > < OPEN > String() < CLOSE >
+	{ return op.image; } 
+}
+
+void String() #String : {Token t;}
+{
+	( t = < STRING > ) {
+	  ((StringNode)jjtThis).setString(t.image);
+	}	
+}
+
+String Decl() #void: {Token t;}
+{
+  < FA > t = < SYM > "="
+  {
+    return t.image;  }
+}
+
+String Assign() #void:{Token t;}
+{
+  t = < SYM > "="
+  {
+    return t.image;
+  }
+}
+
+void Symbol() #Symbol: {Token t;}
+{
+  t = < SYM >  {	((SymNode)jjtThis).varName = t.image;
+  }
+}
+
+void UnaryOp() #Op: {Token t;}
+{
+  (t = < REV > | t = < NOT > | t = < STAR > | t = < MIN > | t = < TODFA > | t = < PRINT > | t = < DRAW >)
+  { ((OpNode)jjtThis).setOp(t.image); }
+  < OPEN >
+  Expression0()
+  < CLOSE >
+}void New() #Op: {Token t;}{  (t = < NEW > | t = < FROMREGEX >)  { ((OpNode)jjtThis).setOp(t.image); }  < OPEN >  String()  < CLOSE >}
+String BinaryOpTier1() #void: {Token t;}
+{
+  ( t = < UN > )
+  {    return t.image;  }   
+}
+
+String BinaryOpTier2() #void: {Token t;}
+{
+  ( t = < MUL >
+  | t = < DOT >
+  | t = < INT >
+  | t = < XOR >)
+
+  {
+    return t.image;
+  }
+   
+}
+
+
+
+
+

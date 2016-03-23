@@ -391,6 +391,11 @@ public class FA {
 		}
 		return true;
 	}
+
+	/**
+	 * 	Returns a string that represents the current FA.
+	 * 	@return 	a string that represents the current FA
+	 */
 	public String toString(){
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(os);
@@ -410,6 +415,11 @@ public class FA {
 		}
 		return out;
 	}
+
+	/** 
+	 * 	Exports the current FA to a PrintStream in the .dot format
+	 * 	@param 	os 	output stream to which the FA will be exported. 
+	 */
 	public void toDot(PrintStream os) {
 		os.println("digraph {");
 		os.println("\trankdir=LR;");
@@ -453,6 +463,13 @@ public class FA {
 		}
 		os.println("}");
 	}
+
+	/**
+	 * 	Returns the FA that results from the junction of the two given FAs
+	 * 	@param 	a 	first FA
+	 * 	@param 	b 	second FA
+	 *	@return 	FA that results of the junction
+	 */
 	public static FA join(FA a, FA b){
 		FA out = new FA();
 		out.numStates = a.numStates + b.numStates;
@@ -494,6 +511,13 @@ public class FA {
 		out.initialState = a.initialState;
 		return out;
 	}
+
+	/**
+	 *	Concatenates two FAs and returns the resulting FA
+	 * 	@param 	a 	first FA
+	 * 	@param 	b 	second FA
+	 * 	@retunr 	resulting FA
+	 */
 	public static FA cat(FA a, FA b){
 		FA out = join(a,b);
 		for(Integer i : a.finalStates){
@@ -504,6 +528,12 @@ public class FA {
 		}
 		return out;
 	}
+
+	/**
+	 * 	Applies the clean-star operator to the given FA and returns the resulting FA
+	 * 	@param 	a 	FA to which the clean-star operator will be applied
+	 *	@return 	FA resulting from the operation  
+	 */
 	public static FA star(FA a){
 		FA out = new FA(a);
 		for(Integer i : a.finalStates){
@@ -513,6 +543,15 @@ public class FA {
 			out.finalStates.add(a.initialState);
 		return out;
 	}
+
+	/** 
+	 * 	Performs a quick union between two FAs by adding another inital state
+	 * 	and adding epsilon transitions from the new initial state to the inital states of the given FAs 
+	 *	
+	 * 	@param 	a 	first FA
+	 * 	@param 	b 	second FA
+	 *	@return 	FA resulting from the operation  
+	 */
 	public static FA quickUnion(FA a, FA b){
 		FA out = FA.join(a,b);
 		out.initialState = out.numStates;
@@ -527,6 +566,10 @@ public class FA {
 		}
 		return out;
 	}
+	/**
+	 * 	Generates a minimized FA that matches the current FA
+	 * 	@return 	minimized FA
+	 */
 	public FA minimized(){
 		FA out = new FA();
 		boolean[][] distinct = new boolean[this.numStates][this.numStates];
@@ -562,6 +605,12 @@ public class FA {
 		return out;
 	}
 
+	/** 
+	 *	Verifies if the given sets of states are distinct from each other
+	 * 	@param 	set1 		first set of states
+	 * 	@param 	set2		second set of states
+	 *	@param	distinct 	matrix in which for each pair of states tells if they are different or not
+ 	 */
 	private boolean distinctSets(ArrayList<Integer> set1,
 			ArrayList<Integer> set2, boolean[][] distinct) {
 		//for(int)
@@ -572,6 +621,12 @@ public class FA {
 		}
 		return false;
 	}
+
+	/**
+	 * 	Generates a FA for a given symbol
+	 * 	@param 	symbol 	symbol used to generate the FA
+	 * 	@result 		resulting FA  
+	 */
 	public static FA fromSymbol(String symbol){
 		FA out = new FA();
 		out.incNumStates();

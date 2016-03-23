@@ -3,10 +3,5 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="external"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="D:/Users/Ricardo/Desktop/Nova pasta (2)/graphviz-java-api-master/target/graphviz-java-api-1.0-SNAPSHOT.jar" sourcepath="D:/Users/Ricardo/Desktop/Nova pasta (2)/graphviz-java-api-master/src">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/Users/Ricardo/Desktop/Nova pasta (2)/graphviz-java-api-master/target"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

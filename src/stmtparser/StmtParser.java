@@ -35,8 +35,6 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
       }
       catch (Exception e)
       {
-        System.out.println("Oops.");
-        System.out.println(e.getMessage());
         e.printStackTrace();
         break;
       }
@@ -674,6 +672,22 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     finally { jj_save(23, xla); }
   }
 
+  static private boolean jj_3R_8() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_21()) {
+    jj_scanpos = xsp;
+    if (jj_3_22()) {
+    jj_scanpos = xsp;
+    if (jj_3_23()) {
+    jj_scanpos = xsp;
+    if (jj_3_24()) return true;
+    }
+    }
+    }
+    return false;
+  }
+
   static private boolean jj_3_11() {
     if (jj_3R_13()) return true;
     return false;
@@ -929,22 +943,6 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
 
   static private boolean jj_3_21() {
     if (jj_scan_token(MUL)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_8() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_21()) {
-    jj_scanpos = xsp;
-    if (jj_3_22()) {
-    jj_scanpos = xsp;
-    if (jj_3_23()) {
-    jj_scanpos = xsp;
-    if (jj_3_24()) return true;
-    }
-    }
-    }
     return false;
   }
 

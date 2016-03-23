@@ -28,6 +28,11 @@ public class FA {
 		return isDFA;
 	}
 
+	/**
+	 * Analyzes the the FA to ascertain if it is a Deterministic Finite Automaton(DFA).
+	 *
+	 * @return		true if it is a DFA. Otherwise returns false.
+	 */
 	public boolean computeIsDFA() {
 		Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta.entrySet().iterator();
 		while (it.hasNext()) {
@@ -82,10 +87,18 @@ public class FA {
 		this.finalStates = finalStates;
 	}
 
+	/**
+	 * Set the initial state of the FA
+	 *
+	 * @param	initial 	new initial state
+	 */
 	public void setInitialState(int initial) {
 		this.initialState = initial;
 	}
 
+	/**
+	 * Increases the number of states and adds the size of the array of transitions.
+	 */
 	public void incNumStates() {
 		this.numStates++;
 		this.delta.forEach(new BiConsumer<String, ArrayList<ArrayList<Integer>>>() {
@@ -96,10 +109,22 @@ public class FA {
 		});
 	}
 
+	/**
+	 * Adds a state as a final state
+	 * 
+	 * @param	state 	number that represents of the new final state
+	 */
 	public void addFinalState(int state) {
 		this.finalStates.add(state);
 	}
 
+	/**
+	 * Adds a transition between two states
+	 *
+	 * @param	symbol 		input of transition necessary to make the transition
+	 * @param 	srcState 	source state
+	 * @param 	dstState	destiny state
+	 */
 	public void addTransition(String symbol, int srcState, int dstState) {
 		// System.out.println("Adding transition " + srcState + " -> " +
 		// dstState
@@ -118,7 +143,12 @@ public class FA {
 			delta.put(symbol, states);
 		}
 	}
-
+	/**
+	 * Sorts in ascending way an array of states and removes duplicates
+	 * 
+	 * @param 	states 		set of arrays to be ordered
+	 * @param 	numStates 	max number of states of the FA
+	 */
 	public static void sortAndRemoveDups(ArrayList<Integer> states,
 			int numStates) {
 		int[] statesFound = new int[numStates];
@@ -132,6 +162,12 @@ public class FA {
 		}
 	}
 
+	/** 
+	 * 	Runs the FA and validates the given input
+	 *
+	 *	@param 	input 	set of strings to be validated by the FA
+	 * 	@return 		true if the input is validated by the FA. If not returns false.
+	 */
 	public boolean process(String[] input) {
 		ArrayList<Integer> currentStates = new ArrayList<Integer>();
 		currentStates.add(initialState);
@@ -157,6 +193,13 @@ public class FA {
 		return false;
 	}
 
+	/**
+	 * 	Checks the current set of states and adds to a given set of states the possible destination states given a certain input
+	 *  
+	 *	@param 	input 			given input to be analyzed
+	 * 	@param 	currentState 	current set of states
+	 * 	@param 	nextState 		set of possible destinations where the results will be added
+	 */
 	private void applyInput(String input, ArrayList<Integer> currentState,
 			ArrayList<Integer> nextState) {
 		ArrayList<ArrayList<Integer>> transitions = delta.get(input);
@@ -166,9 +209,22 @@ public class FA {
 			}
 	}
 
+	/**
+	 * 	Checks if a given state belongs to the set of final states of the FA	
+	 *
+	 *	@param 	state 	state given to ascertain
+	 *	@return 		true if belongs to the set of final states. If not returns false
+	 */
 	private boolean isFinal(int state) {
 		return finalStates.contains(state);
 	}
+
+	/**
+	 * 	Checks if the given set of states contains a state that belongs to the set of final states of the FA
+	 *
+	 *	@param 	states 	set of states to be ascertain
+	 * 	@return 		true if there is at least a state that belongs to the set of final states. If not returns false
+	 */
 	private boolean isFinal(ArrayList<Integer> states) {
 		for(Integer i : states){
 			if(isFinal(i))
@@ -176,6 +232,10 @@ public class FA {
 		}
 		return false;
 	}
+
+	/** 
+	 * 	Ensures all sets representing transitions have size equal to the number of states.
+	 */
 	private void finalizeConstruction(){
 		delta.forEach(new BiConsumer<String, ArrayList<ArrayList<Integer>>>() {
 				@Override
@@ -186,6 +246,11 @@ public class FA {
 				}
 			});
 	}
+
+	/**
+	 * 	Returns an automate that matches the current FA but is a DFA
+	 * 	@return 	resulting DFA
+	 */
 	public FA toDFA() {
 		FA out = new FA();
 		System.out.println("Starting DFA conversion");
@@ -237,6 +302,13 @@ public class FA {
 		out.isDFA = true;
 		return out;
 	}
+
+	/**
+	 * 	Calculates the super set of the alphabets of the given FAs
+	 *	
+	 * 	@param 	fas 	set of FAs
+	 * 	@return 		the super set of the alphabets	
+	 */
 	public static ArrayList<String> alphabetSuperset(FA... fas){
 		ArrayList<String> alphabet = new ArrayList<String>();
 		BiConsumer<String, ArrayList<ArrayList<Integer>>> consumer = new BiConsumer<String, ArrayList<ArrayList<Integer>>>() {
@@ -251,6 +323,11 @@ public class FA {
 		}
 		return alphabet;
 	}
+	/**
+	 * 	Generates the FA from the product of a set of FAs and the sets the final nodes of the generated FA according to a given abstract sintax tree
+	 * 	@param 	ast 	abstract sintax tree
+	 * 	@param 	fas 	set FAs to be multiplied
+	 */
 	public static FA product(SimpleNode ast, FA... fas) {
 		FA out = new FA();
 		System.out.println("Starting FA product...");

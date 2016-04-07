@@ -28,6 +28,11 @@ public class FA {
 		return isDFA;
 	}
 
+	/**
+	 * Analyzes the the FA to ascertain if it is a Deterministic Finite Automaton(DFA).
+	 *
+	 * @return		true if it is a DFA. Otherwise returns false.
+	 */
 	public boolean computeIsDFA() {
 		Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta.entrySet().iterator();
 		while (it.hasNext()) {
@@ -82,10 +87,18 @@ public class FA {
 		this.finalStates = finalStates;
 	}
 
+	/**
+	 * Set the initial state of the FA
+	 *
+	 * @param	initial 	new initial state
+	 */
 	public void setInitialState(int initial) {
 		this.initialState = initial;
 	}
 
+	/**
+	 * Increases the number of states and adds the size of the array of transitions.
+	 */
 	public void incNumStates() {
 		this.numStates++;
 		this.delta.forEach(new BiConsumer<String, ArrayList<ArrayList<Integer>>>() {
@@ -96,10 +109,22 @@ public class FA {
 		});
 	}
 
+	/**
+	 * Adds a state as a final state
+	 * 
+	 * @param	state 	number that represents of the new final state
+	 */
 	public void addFinalState(int state) {
 		this.finalStates.add(state);
 	}
 
+	/**
+	 * Adds a transition between two states
+	 *
+	 * @param	symbol 		input of transition necessary to make the transition
+	 * @param 	srcState 	source state
+	 * @param 	dstState	destiny state
+	 */
 	public void addTransition(String symbol, int srcState, int dstState) {
 		// System.out.println("Adding transition " + srcState + " -> " +
 		// dstState
@@ -118,7 +143,12 @@ public class FA {
 			delta.put(symbol, states);
 		}
 	}
-
+	/**
+	 * Sorts in ascending way an array of states and removes duplicates
+	 * 
+	 * @param 	states 		set of arrays to be ordered
+	 * @param 	numStates 	max number of states of the FA
+	 */
 	public static void sortAndRemoveDups(ArrayList<Integer> states,
 			int numStates) {
 		int[] statesFound = new int[numStates];
@@ -132,6 +162,12 @@ public class FA {
 		}
 	}
 
+	/** 
+	 * 	Runs the FA and validates the given input
+	 *
+	 *	@param 	input 	set of strings to be validated by the FA
+	 * 	@return 		true if the input is validated by the FA. If not returns false.
+	 */
 	public boolean process(String[] input) {
 		ArrayList<Integer> currentStates = new ArrayList<Integer>();
 		currentStates.add(initialState);
@@ -157,6 +193,13 @@ public class FA {
 		return false;
 	}
 
+	/**
+	 * 	Checks the current set of states and adds to a given set of states the possible destination states given a certain input
+	 *  
+	 *	@param 	input 			given input to be analyzed
+	 * 	@param 	currentState 	current set of states
+	 * 	@param 	nextState 		set of possible destinations where the results will be added
+	 */
 	private void applyInput(String input, ArrayList<Integer> currentState,
 			ArrayList<Integer> nextState) {
 		ArrayList<ArrayList<Integer>> transitions = delta.get(input);
@@ -166,9 +209,22 @@ public class FA {
 			}
 	}
 
+	/**
+	 * 	Checks if a given state belongs to the set of final states of the FA	
+	 *
+	 *	@param 	state 	state given to ascertain
+	 *	@return 		true if belongs to the set of final states. If not returns false
+	 */
 	private boolean isFinal(int state) {
 		return finalStates.contains(state);
 	}
+
+	/**
+	 * 	Checks if the given set of states contains a state that belongs to the set of final states of the FA
+	 *
+	 *	@param 	states 	set of states to be ascertain
+	 * 	@return 		true if there is at least a state that belongs to the set of final states. If not returns false
+	 */
 	private boolean isFinal(ArrayList<Integer> states) {
 		for(Integer i : states){
 			if(isFinal(i))
@@ -176,6 +232,10 @@ public class FA {
 		}
 		return false;
 	}
+
+	/** 
+	 * 	Ensures all sets representing transitions have size equal to the number of states.
+	 */
 	private void finalizeConstruction(){
 		delta.forEach(new BiConsumer<String, ArrayList<ArrayList<Integer>>>() {
 				@Override
@@ -186,6 +246,11 @@ public class FA {
 				}
 			});
 	}
+
+	/**
+	 * 	Returns an automate that matches the current FA but is a DFA
+	 * 	@return 	resulting DFA
+	 */
 	public FA toDFA() {
 		FA out = new FA();
 		System.out.println("Starting DFA conversion");
@@ -237,6 +302,13 @@ public class FA {
 		out.isDFA = true;
 		return out;
 	}
+
+	/**
+	 * 	Calculates the super set of the alphabets of the given FAs
+	 *	
+	 * 	@param 	fas 	set of FAs
+	 * 	@return 		the super set of the alphabets	
+	 */
 	public static ArrayList<String> alphabetSuperset(FA... fas){
 		ArrayList<String> alphabet = new ArrayList<String>();
 		BiConsumer<String, ArrayList<ArrayList<Integer>>> consumer = new BiConsumer<String, ArrayList<ArrayList<Integer>>>() {
@@ -251,6 +323,11 @@ public class FA {
 		}
 		return alphabet;
 	}
+	/**
+	 * 	Generates the FA from the product of a set of FAs and the sets the final nodes of the generated FA according to a given abstract sintax tree
+	 * 	@param 	ast 	abstract sintax tree
+	 * 	@param 	fas 	set FAs to be multiplied
+	 */
 	public static FA product(SimpleNode ast, FA... fas) {
 		FA out = new FA();
 		System.out.println("Starting FA product...");
@@ -314,6 +391,11 @@ public class FA {
 		}
 		return true;
 	}
+
+	/**
+	 * 	Returns a string that represents the current FA.
+	 * 	@return 	a string that represents the current FA
+	 */
 	public String toString(){
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(os);
@@ -333,6 +415,11 @@ public class FA {
 		}
 		return out;
 	}
+
+	/** 
+	 * 	Exports the current FA to a PrintStream in the .dot format
+	 * 	@param 	os 	output stream to which the FA will be exported. 
+	 */
 	public void toDot(PrintStream os) {
 		os.println("digraph {");
 		os.println("\trankdir=LR;");
@@ -376,6 +463,13 @@ public class FA {
 		}
 		os.println("}");
 	}
+
+	/**
+	 * 	Returns the FA that results from the junction of the two given FAs
+	 * 	@param 	a 	first FA
+	 * 	@param 	b 	second FA
+	 *	@return 	FA that results of the junction
+	 */
 	public static FA join(FA a, FA b){
 		FA out = new FA();
 		out.numStates = a.numStates + b.numStates;
@@ -417,6 +511,13 @@ public class FA {
 		out.initialState = a.initialState;
 		return out;
 	}
+
+	/**
+	 *	Concatenates two FAs and returns the resulting FA
+	 * 	@param 	a 	first FA
+	 * 	@param 	b 	second FA
+	 * 	@retunr 	resulting FA
+	 */
 	public static FA cat(FA a, FA b){
 		FA out = join(a,b);
 		for(Integer i : a.finalStates){
@@ -427,6 +528,12 @@ public class FA {
 		}
 		return out;
 	}
+
+	/**
+	 * 	Applies the clean-star operator to the given FA and returns the resulting FA
+	 * 	@param 	a 	FA to which the clean-star operator will be applied
+	 *	@return 	FA resulting from the operation  
+	 */
 	public static FA star(FA a){
 		FA out = new FA(a);
 		for(Integer i : a.finalStates){
@@ -436,6 +543,15 @@ public class FA {
 			out.finalStates.add(a.initialState);
 		return out;
 	}
+
+	/** 
+	 * 	Performs a quick union between two FAs by adding another inital state
+	 * 	and adding epsilon transitions from the new initial state to the inital states of the given FAs 
+	 *	
+	 * 	@param 	a 	first FA
+	 * 	@param 	b 	second FA
+	 *	@return 	FA resulting from the operation  
+	 */
 	public static FA quickUnion(FA a, FA b){
 		FA out = FA.join(a,b);
 		out.initialState = out.numStates;
@@ -450,6 +566,10 @@ public class FA {
 		}
 		return out;
 	}
+	/**
+	 * 	Generates a minimized FA that matches the current FA
+	 * 	@return 	minimized FA
+	 */
 	public FA minimized(){
 		FA out = new FA();
 		boolean[][] distinct = new boolean[this.numStates][this.numStates];
@@ -485,6 +605,12 @@ public class FA {
 		return out;
 	}
 
+	/** 
+	 *	Verifies if the given sets of states are distinct from each other
+	 * 	@param 	set1 		first set of states
+	 * 	@param 	set2		second set of states
+	 *	@param	distinct 	matrix in which for each pair of states tells if they are different or not
+ 	 */
 	private boolean distinctSets(ArrayList<Integer> set1,
 			ArrayList<Integer> set2, boolean[][] distinct) {
 		//for(int)
@@ -495,6 +621,12 @@ public class FA {
 		}
 		return false;
 	}
+
+	/**
+	 * 	Generates a FA for a given symbol
+	 * 	@param 	symbol 	symbol used to generate the FA
+	 * 	@result 		resulting FA  
+	 */
 	public static FA fromSymbol(String symbol){
 		FA out = new FA();
 		out.incNumStates();

@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
-import com.github.jabbalaci.graphviz.GraphViz;
-
 import stmtparser.SimpleNode;
 
 public class FA {
@@ -572,36 +570,83 @@ public class FA {
 	 */
 	public FA minimized(){
 		FA out = new FA();
+		System.out.println("Minimizing");
 		boolean[][] distinct = new boolean[this.numStates][this.numStates];
-		for(int i = 0; i < this.numStates-1; i++){
-			for(int j = i+1; j < this.numStates; j++){
+		for (int i = 0; i < this.numStates - 1; i++) {
+			for (int j = i + 1; j < this.numStates; j++) {
 				boolean iFinal = this.isFinal(i);
 				boolean jFinal = this.isFinal(j);
-				if(iFinal != jFinal){
+				if (iFinal != jFinal) {
 					distinct[i][j] = true;
 					distinct[j][i] = true;
 				}
 			}
 		}
 		boolean changed;
-		do{
+		do {
+			for (int n = 0; n < distinct.length; n++)
+				System.out.println(Arrays.toString(distinct[n]));
+			System.out.println("\n\n");
 			changed = false;
-			for(int i = 0; i < this.numStates-1; i++){
-				for(int j = i+1; j < this.numStates; j++){
-					Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta.entrySet().iterator();
-					while (it.hasNext()) {
-						Map.Entry<String, ArrayList<ArrayList<Integer>>> pair = (Map.Entry<String, ArrayList<ArrayList<Integer>>>) it
-								.next();
-						String t = pair.getKey();
-						ArrayList<ArrayList<Integer>> u = pair.getValue();
-						if(distinctSets(u.get(i), u.get(j), distinct)){
-							distinct[i][j] = true;
-							distinct[j][i] = true;
+			for (int i = 0; i < this.numStates - 1; i++) {
+				for (int j = i + 1; j < this.numStates; j++) {
+					if (!distinct[i][j]) {
+						Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta
+								.entrySet().iterator();
+						while (it.hasNext()) {
+							Map.Entry<String, ArrayList<ArrayList<Integer>>> pair = (Map.Entry<String, ArrayList<ArrayList<Integer>>>) it
+									.next();
+							String t = pair.getKey();
+							ArrayList<ArrayList<Integer>> u = pair.getValue();
+							if (distinctSets(u.get(i), u.get(j), distinct)) {
+								System.out.println("States " + i + " and " + j + " are different\n");
+								distinct[i][j] = true;
+								distinct[j][i] = true;
+								changed = true;
+								break;
+							}
 						}
 					}
 				}
 			}
-		} while(changed);
+		} while (changed);
+		ArrayList<ArrayList<Integer>> pairs = new ArrayList<ArrayList<Integer>>();
+		for (int i = 0; i < this.numStates; i++) {
+			boolean equivalent = true;
+			for (int j = 0; j < pairs.size(); j++) {
+				if (distinct[i][pairs.get(j).get(0)]) {
+					equivalent = false;
+					break;
+				}
+			}
+			if (!equivalent) {
+				ArrayList<Integer> temp = new ArrayList<Integer>();
+				temp.add(i);
+				temp.add(out.numStates);
+				pairs.add(temp);
+				out.incNumStates();
+			}
+		}
+		Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta
+				.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, ArrayList<ArrayList<Integer>>> pair = (Map.Entry<String, ArrayList<ArrayList<Integer>>>) it
+					.next();
+			String t = pair.getKey();
+			ArrayList<ArrayList<Integer>> u = pair.getValue();
+			for (int i = 0; i < pairs.size(); i++) {
+				for (int j = 0; j < pairs.size(); j++) {
+					if (u.get(pairs.get(i).get(0)).get(0).equals(pairs.get(0)))
+						out.addTransition(t, pairs.get(i).get(1), pairs.get(j)
+								.get(0));
+				}
+			}
+		}
+		for (int i = 0; i < pairs.size(); i++) {
+			if (this.isFinal(pairs.get(i).get(0)))
+				out.addFinalState(pairs.get(i).get(1));
+		}
+		out.finalizeConstruction();
 		return out;
 	}
 
@@ -613,13 +658,7 @@ public class FA {
  	 */
 	private boolean distinctSets(ArrayList<Integer> set1,
 			ArrayList<Integer> set2, boolean[][] distinct) {
-		//for(int)
-		for(int i = 0; i < set1.size(); i++){
-			for(int j = 0; j < set2.size(); i++){
-				//if()
-			}
-		}
-		return false;
+		return distinct[set1.get(0)][set2.get(0)];
 	}
 
 	/**

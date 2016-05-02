@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
+import faops.BooleanOperation.BinaryBooleanOperation;
 import stmtparser.SimpleNode;
 
 public class FA {
@@ -246,12 +247,12 @@ public class FA {
 	}
 
 	/**
-	 * 	Returns an automate that matches the current FA but is a DFA
+	 * 	get the DFA equivalent to this FA
 	 * 	@return 	resulting DFA
 	 */
 	public FA toDFA() {
 		FA out = new FA();
-		System.out.println("Starting DFA conversion");
+		//System.out.println("Starting DFA conversion");
 		ArrayList<Integer> currentStates = new ArrayList<Integer>();
 		currentStates.add(initialState);
 		applyInput("", currentStates, currentStates);
@@ -279,23 +280,23 @@ public class FA {
 					applyInput(t, states, nextStates);
 					applyInput("", nextStates, nextStates);
 					sortAndRemoveDups(nextStates, numStates);
-					System.out.print("    "+ states + " " + currentStateCopy + " -(" + t + ")->" + nextStates);
+					//System.out.print("    "+ states + " " + currentStateCopy + " -(" + t + ")->" + nextStates);
 					int dstIndex = createdSetsofStates.indexOf(nextStates);
 					if(dstIndex == -1){
-						System.out.println(" " + createdSetsofStates.size());
+						//System.out.println(" " + createdSetsofStates.size());
 						out.incNumStates();
 						out.addTransition(t, currentStateCopy, createdSetsofStates.size());
 						createdSetsofStates.add(new ArrayList<Integer>(nextStates));
-						System.out.println("Added state : " + nextStates);
+						//System.out.println("Added state : " + nextStates);
 					}else{
-						System.out.println(" " + dstIndex);
+						//System.out.println(" " + dstIndex);
 						out.addTransition(t, currentStateCopy, dstIndex);
 					}
 					//System.out.println("2))" + states);
 				}
 			});
 		}
-		System.out.println("Ending DFA conversion");
+		//System.out.println("Ending DFA conversion");
 		out.finalizeConstruction();
 		out.isDFA = true;
 		return out;
@@ -326,7 +327,7 @@ public class FA {
 	 * 	@param 	ast 	abstract sintax tree
 	 * 	@param 	fas 	set FAs to be multiplied
 	 */
-	public static FA product(SimpleNode ast, FA... fas) {
+	/*public static FA product(SimpleNode ast, FA... fas) {
 		FA out = new FA();
 		System.out.println("Starting FA product...");
 		// Find superset of all alphabets
@@ -380,6 +381,77 @@ public class FA {
 		out.finalizeConstruction();
 		out.isDFA = true;
 		return out;
+	}*/
+	/**
+	 * 	Generates the FA resulting from the application of a boolean operation to two FAs
+	 * 	@param 	op 		operation to apply
+	 * 	@param 	fa1 	first FA
+	 *  @param 	fa2 	second FA
+	 *  @return  	    resulting FA
+	 */
+	public static FA product(BinaryBooleanOperation op, FA fa1, FA fa2) {
+		FA out = new FA();
+		//System.out.println("Starting FA product...");
+		if(!fa1.isDFA)
+			fa1 = fa1.toDFA();
+		if(!fa2.isDFA)
+			fa2 = fa2.toDFA();
+		FA[] fas = {fa1,fa2};
+		// Find superset of all alphabets
+		ArrayList<String> alphabet = alphabetSuperset(fas);
+		
+		ArrayList<ArrayList<ArrayList<Integer>>> createdSetsofStates = new ArrayList<ArrayList<ArrayList<Integer>>>(); 
+		ArrayList<ArrayList<Integer>> currentStates = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Integer>> nextStates = new ArrayList<ArrayList<Integer>>();
+		for (int i = 0; i < fas.length; i++) {
+			ArrayList<Integer> faStates = new ArrayList<Integer>();
+			faStates.add(fas[i].initialState);
+			currentStates.add(faStates);
+			nextStates.add(new ArrayList<Integer>());
+		}
+		createdSetsofStates.add(currentStates);
+		out.incNumStates();
+		out.setInitialState(0);
+		for (int currentState = 0; currentState < createdSetsofStates.size(); currentState++) { 
+			currentStates = createdSetsofStates.get(currentState);
+			if(isFinalBinary(op, fas, currentStates)){
+				out.addFinalState(currentState);
+			}
+			for(String symbol : alphabet){
+				for (ArrayList<Integer> set : nextStates) {
+					set.clear();
+				}
+				for(int fa = 0; fa < fas.length; fa++){
+					fas[fa].applyInput(symbol, currentStates.get(fa), nextStates.get(fa));
+					fas[fa].applyInput("", nextStates.get(fa), nextStates.get(fa));
+					sortAndRemoveDups(nextStates.get(fa), fas[fa].numStates);
+				}
+				//System.out.print("    "+ currentStates + " " + currentState + " -(" + symbol + ")->" + nextStates);
+				int dstIndex = createdSetsofStates.indexOf(nextStates);
+				if(dstIndex == -1){
+					//System.out.println(" " + createdSetsofStates.size());
+					out.incNumStates();
+					out.addTransition(symbol, currentState, createdSetsofStates.size());
+					ArrayList<ArrayList<Integer>> saved = new ArrayList<ArrayList<Integer>>();
+					for(ArrayList<Integer> a : nextStates){
+						saved.add(new ArrayList<Integer>(a));
+					}
+					createdSetsofStates.add(saved);
+					//System.out.println("Added state : " + nextStates);
+				}else{
+					//System.out.println(" " + dstIndex);
+					out.addTransition(symbol, currentState, dstIndex);
+				}
+			}
+		}
+		//System.out.println("Ending FA product...");
+		out.finalizeConstruction();
+		out.isDFA = true;
+		return out;
+	}
+	
+	private static boolean isFinalBinary(BinaryBooleanOperation op, FA[] fas, ArrayList<ArrayList<Integer>> currentStates) {
+		return op.apply(fas[0].isFinal(currentStates.get(0)), fas[1].isFinal(currentStates.get(1)));
 	}
 
 	private static boolean isFinalMultiple(SimpleNode ast, FA[] fas,ArrayList<ArrayList<Integer>> states) {
@@ -389,7 +461,16 @@ public class FA {
 		}
 		return true;
 	}
-
+	public static FA xor(FA fa1, FA fa2) {
+		return product(BooleanOperation.xor , fa1, fa2);
+	}
+	public static FA intersect(FA fa1, FA fa2) {
+		return product(BooleanOperation.and , fa1, fa2);
+	}
+	public static FA union(FA fa1, FA fa2) {
+		return product(BooleanOperation.or , fa1, fa2);
+	}
+	
 	/**
 	 * 	Returns a string that represents the current FA.
 	 * 	@return 	a string that represents the current FA
@@ -570,26 +651,32 @@ public class FA {
 	 */
 	public FA minimized(){
 		FA out = new FA();
-		System.out.println("Minimizing");
+		FA toMinimize = null;
+		if(!this.isDFA)
+			toMinimize = this.toDFA();
+		else toMinimize = this;
+		//System.out.println("Minimizing");
 		boolean[][] distinct = new boolean[this.numStates][this.numStates];
-		for (int i = 0; i < this.numStates - 1; i++) {
-			for (int j = i + 1; j < this.numStates; j++) {
-				boolean iFinal = this.isFinal(i);
-				boolean jFinal = this.isFinal(j);
+		
+		//initialize matrix
+		for (int i = 0; i < toMinimize.numStates - 1; i++) {
+			for (int j = i + 1; j < toMinimize.numStates; j++) {
+				boolean iFinal = toMinimize.isFinal(i);
+				boolean jFinal = toMinimize.isFinal(j);
 				if (iFinal != jFinal) {
-					distinct[i][j] = true;
+					distinct[i][j] = true; // if one state is final and the other isn't, they are different
 					distinct[j][i] = true;
 				}
 			}
 		}
 		boolean changed;
 		do {
-			for (int n = 0; n < distinct.length; n++)
-				System.out.println(Arrays.toString(distinct[n]));
-			System.out.println("\n\n");
+			//for (int n = 0; n < distinct.length; n++)
+				//System.out.println(Arrays.toString(distinct[n]));
+			//System.out.println("\n\n");
 			changed = false;
-			for (int i = 0; i < this.numStates - 1; i++) {
-				for (int j = i + 1; j < this.numStates; j++) {
+			for (int i = 0; i < toMinimize.numStates - 1; i++) {
+				for (int j = i + 1; j < toMinimize.numStates; j++) {
 					if (!distinct[i][j]) {
 						Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta
 								.entrySet().iterator();
@@ -598,8 +685,8 @@ public class FA {
 									.next();
 							String t = pair.getKey();
 							ArrayList<ArrayList<Integer>> u = pair.getValue();
-							if (distinctSets(u.get(i), u.get(j), distinct)) {
-								System.out.println("States " + i + " and " + j + " are different\n");
+							if (distinctSets(u.get(i), u.get(j), distinct)) { //if states lead to states that are different on a given symbol, they are themselves different
+								//System.out.println("States " + i + " and " + j + " are different\n");
 								distinct[i][j] = true;
 								distinct[j][i] = true;
 								changed = true;
@@ -609,55 +696,104 @@ public class FA {
 					}
 				}
 			}
-		} while (changed);
-		ArrayList<ArrayList<Integer>> pairs = new ArrayList<ArrayList<Integer>>();
-		for (int i = 0; i < this.numStates; i++) {
-			boolean equivalent = true;
-			for (int j = 0; j < pairs.size(); j++) {
-				if (distinct[i][pairs.get(j).get(0)]) {
-					equivalent = false;
-					break;
-				}
+		} while (changed); // stop when no changes made
+		
+		ArrayList<Pair<Pair<Integer, Integer>, ArrayList<Integer>>> equivalentSets = new ArrayList<>();
+		
+		for (int i = 0; i < toMinimize.numStates; i++) {
+			int equivalent = 0;
+			for (; equivalent < equivalentSets.size(); equivalent++) {
+				if (!distinct[i][equivalentSets.get(equivalent).left.right]) 
+					break;		
 			}
-			if (!equivalent) {
+			if (equivalent == equivalentSets.size()) { // not found
+				//System.out.println("Adding state " + i + " as state " + out.numStates);
 				ArrayList<Integer> temp = new ArrayList<Integer>();
 				temp.add(i);
-				temp.add(out.numStates);
-				pairs.add(temp);
+				equivalentSets.add(new Pair<Pair<Integer, Integer>, ArrayList<Integer>>(new Pair<Integer, Integer>(out.numStates, i), temp));
 				out.incNumStates();
+			} else {
+				equivalentSets.get(equivalent).right.add(i);
 			}
 		}
-		Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta
-				.entrySet().iterator();
+		
+		/*for (int j = 0; j < equivalentSets.size(); j++) {
+			for (int n = 0; n < equivalentSets.get(j).right.size(); n++) {
+				System.out.print(equivalentSets.get(j).right.get(n) + ", ");
+			}
+			System.out.println("\n");
+		}*/
+		Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry<String, ArrayList<ArrayList<Integer>>> pair = (Map.Entry<String, ArrayList<ArrayList<Integer>>>) it
-					.next();
+			Map.Entry<String, ArrayList<ArrayList<Integer>>> pair = (Map.Entry<String, ArrayList<ArrayList<Integer>>>) it.next();
 			String t = pair.getKey();
 			ArrayList<ArrayList<Integer>> u = pair.getValue();
-			for (int i = 0; i < pairs.size(); i++) {
+			/*for (int i = 0; i < pairs.size(); i++) {
 				for (int j = 0; j < pairs.size(); j++) {
 					if (u.get(pairs.get(i).get(0)).get(0).equals(pairs.get(0)))
-						out.addTransition(t, pairs.get(i).get(1), pairs.get(j)
-								.get(0));
+						out.addTransition(t, pairs.get(i).get(1), pairs.get(j).get(0));
+				}
+			}*/
+			for(int i = 0; i < u.size(); i++){
+				int newi = findNewState(i,equivalentSets);
+				if(newi == -1){
+					continue;
+				}
+				for(int j = 0; j < u.get(i).size(); j++){
+					int newj = findNewState(u.get(i).get(j),equivalentSets);
+					if(newj == -1){
+						continue;
+					}
+					out.addTransition(t, newi, newj);
 				}
 			}
 		}
-		for (int i = 0; i < pairs.size(); i++) {
-			if (this.isFinal(pairs.get(i).get(0)))
-				out.addFinalState(pairs.get(i).get(1));
+		for (int i = 0; i < equivalentSets.size(); i++) {
+			if (toMinimize.isFinal(equivalentSets.get(i).left.right))
+				out.addFinalState(equivalentSets.get(i).left.left);
 		}
 		out.finalizeConstruction();
 		return out;
 	}
+	
+	/*public FA removeUnreachable() {
+		
+	}
+	
+	public FA removeStates(ArrayList<Integer> list){
+		FA out = new FA();
+		ArrayList<Pair<Integer, Integer>> mapping = new ArrayList<>();
+		int currentNum = 0;
+		for(int i = 0; i < this.numStates; i++){
+			if(list.contains(i)){
+				mapping.add(new Pair<Integer, Integer>(i, -1));
+				currentNum++;
+			} else {
+				mapping.add(new Pair<Integer, Integer>(i, i-currentNum));
+			}
+		}
+	}*/
+	
+	private int findNewState(int state, ArrayList<Pair<Pair<Integer, Integer>, ArrayList<Integer>>> equivalentSets) {
+		for (int j = 0; j < equivalentSets.size(); j++) {
+			for (int n = 0; n < equivalentSets.get(j).right.size(); n++) {
+				if(state == equivalentSets.get(j).right.get(n))
+					return equivalentSets.get(j).left.left;
+			}
+		}
+		return -1;
+	}
 
 	/** 
-	 *	Verifies if the given sets of states are distinct from each other
+	 *	Verifies if the given sets of states of a DFA are distinct from each other
 	 * 	@param 	set1 		first set of states
 	 * 	@param 	set2		second set of states
 	 *	@param	distinct 	matrix in which for each pair of states tells if they are different or not
  	 */
 	private boolean distinctSets(ArrayList<Integer> set1,
 			ArrayList<Integer> set2, boolean[][] distinct) {
+		if(set1.size() == 0 || set2.size() == 0)
+			return false;
 		return distinct[set1.get(0)][set2.get(0)];
 	}
 
@@ -676,6 +812,43 @@ public class FA {
 			out.incNumStates();
 			out.addTransition(symbol, out.initialState, out.numStates-1);
 			out.finalStates.add(out.numStates-1);
+		}
+		return out;
+	}
+
+	public FA reverse() {
+		FA out = new FA();
+		out.initialState = 0;
+		out.incNumStates();
+		out.numStates += this.numStates;
+		Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, ArrayList<ArrayList<Integer>>> pair = (Map.Entry<String, ArrayList<ArrayList<Integer>>>) it.next();
+			String t = pair.getKey();
+			ArrayList<ArrayList<Integer>> u = pair.getValue();
+			for(int i = 0; i < u.size(); i++){
+				for(int j = 0; j < u.get(i).size(); j++){
+					out.addTransition(t, u.get(i).get(j)+1, i+1);
+				}
+			}
+		}
+		out.addFinalState(this.initialState+1);
+		for(int i = 0; i < this.finalStates.size(); i++){
+			out.addTransition("", 0, this.finalStates.get(i) + 1);
+		}
+		return out;
+	}
+
+	public FA not() {
+		FA toconvert = null;
+		if(!this.isDFA)
+			toconvert = this.toDFA();
+		else toconvert = this;
+		FA out = new FA(toconvert);
+		out.finalStates.clear();
+		for(int i = 0; i < out.numStates; i++){
+			if(!toconvert.isFinal(i))
+				out.finalStates.add(i);
 		}
 		return out;
 	}

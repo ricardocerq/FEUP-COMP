@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, FileParserConstants {/*@bgen(jjtree)*/
   protected static JJTFileParserState jjtree = new JJTFileParserState();public static void main(String args []) throws FileNotFoundException
   {
-   System.out.println("Reading from standard input...");
+    System.out.println("Reading from standard input...");
     SimpleNode n1;
     SimpleNode n2;
     FileParser fp = new FileParser(new FileInputStream(new File(FileParser.class.getResource("product1.dot").getPath())));
@@ -76,6 +76,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
       e.printStackTrace();
       return null;
     }
+    out.computeIsDFA();
     return out;
   }
 
@@ -403,11 +404,6 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
     finally { jj_save(6, xla); }
   }
 
-  static private boolean jj_3_6() {
-    if (jj_scan_token(CIRCLE)) return true;
-    return false;
-  }
-
   static private boolean jj_3R_4() {
     if (jj_scan_token(RANKDIR)) return true;
     if (jj_scan_token(27)) return true;
@@ -490,6 +486,11 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
 
   static private boolean jj_3_2() {
     if (jj_3R_4()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_6() {
+    if (jj_scan_token(CIRCLE)) return true;
     return false;
   }
 

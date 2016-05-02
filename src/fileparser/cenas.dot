@@ -9,8 +9,7 @@ digraph {
 	node [shape=circle, color=black, fontcolor=black]; q5;
 	node [shape=circle, color=black, fontcolor=black]; q6;
 	node [shape=circle, color=black, fontcolor=black]; q7;
-	node [shape=circle, color=black, fontcolor=black]; q8;
-	start -> q8;
+	start -> q0;
 	q0 -> q1 [label="a"];
 	q0 -> q2 [label="b"];
 	q0 -> q3 [label="c"];
@@ -32,3 +31,4 @@ digraph {
 	q7 -> q3 [label="c"];
 	q7 -> q5 [label="b"];
 	q7 -> q7 [label="a"];
+}

@@ -23,41 +23,43 @@ public interface StmtParserConstants {
   /** RegularExpression Id. */
   int DOT = 11;
   /** RegularExpression Id. */
-  int REV = 12;
+  int EQUALS = 12;
   /** RegularExpression Id. */
-  int NOT = 13;
+  int REV = 13;
   /** RegularExpression Id. */
-  int STAR = 14;
+  int NOT = 14;
   /** RegularExpression Id. */
-  int INT = 15;
+  int STAR = 15;
   /** RegularExpression Id. */
-  int UN = 16;
+  int INT = 16;
   /** RegularExpression Id. */
-  int DIF = 17;
+  int UN = 17;
   /** RegularExpression Id. */
-  int XOR = 18;
+  int DIF = 18;
   /** RegularExpression Id. */
-  int FA = 19;
+  int XOR = 19;
   /** RegularExpression Id. */
-  int TODFA = 20;
+  int FA = 20;
   /** RegularExpression Id. */
-  int MIN = 21;
+  int TODFA = 21;
   /** RegularExpression Id. */
-  int DUMP = 22;
+  int MIN = 22;
   /** RegularExpression Id. */
-  int PRINT = 23;
+  int DUMP = 23;
   /** RegularExpression Id. */
-  int DRAW = 24;
+  int PRINT = 24;
   /** RegularExpression Id. */
-  int STRINGDELIM = 25;
+  int DRAW = 25;
   /** RegularExpression Id. */
-  int SYM = 26;
+  int STRINGDELIM = 26;
   /** RegularExpression Id. */
-  int STRING = 27;
+  int SYM = 27;
   /** RegularExpression Id. */
-  int END_STMT = 28;
+  int STRING = 28;
   /** RegularExpression Id. */
-  int ENDL = 29;
+  int END_STMT = 29;
+  /** RegularExpression Id. */
+  int ENDL = 30;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -76,6 +78,7 @@ public interface StmtParserConstants {
     "\"fromRegex\"",
     "\"x\"",
     "\".\"",
+    "\"=\"",
     "\"rev\"",
     "\"not\"",
     "\"star\"",
@@ -94,7 +97,6 @@ public interface StmtParserConstants {
     "<STRING>",
     "\";\"",
     "\"\\n\"",
-    "\"=\"",
   };
 
 }

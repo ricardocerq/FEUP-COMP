@@ -5,7 +5,9 @@ import fileparser.FileParser;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,16 +29,21 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
       {
         System.out.println("Reading from standard input...");
         SimpleNode n = StmtParser.Root();
-        System.out.println("Printing...");
+        System.out.println("Expressions:");
         n.dump("");
         System.out.println("\u005cn");
-        eval(n);
+                eval(n);
         StmtParser.ReInit(System.in);
       }
-      catch (Exception e)
+      catch (Throwable e)
       {
-        e.printStackTrace();
-        break;
+        System.out.println("[ERROR] - " + e.getMessage());
+        StmtParser.ReInit(System.in);
+        try {
+                        System.in.skip(1000);
+                } catch (IOException e1) {
+                        e1.printStackTrace();
+                }
       }
     }
   }
@@ -48,7 +55,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
                         AssignNode an = (AssignNode) node;
                         if (an.isDecl()) {
                                 if(vars.get(an.varName) != null)
-                                        throw new Exception("Variable " + an.varName + " was redeclared");
+                                        throw new EvalException("Variable " + an.varName + " was redeclared");
                         }
                         out = eval((SimpleNode)node.jjtGetChild(0));
                         vars.put(an.varName, out);
@@ -60,12 +67,16 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
                                 SimpleNode rhs = (SimpleNode) node.jjtGetChild(1);
                                 if(on.op == Operations.Op.DUMP){
                                         out = eval(lhs);
-                                        out.toDot(new PrintStream(new FileOutputStream("src/fileparser/" + ((StringNode)rhs).getString(), false)));
+                                        try {
+                                                out.toDot(new PrintStream(new FileOutputStream("src/fileparser/" + ((StringNode)rhs).getString(), false)));
+                                        } catch (FileNotFoundException e) {
+                                                throw new EvalException("Could not write to file " + ((StringNode)rhs).getString());
+                                        }
                                 }
                                 else if(on.op == Operations.Op.UNI){
                                         FA fa = eval(lhs);
                                         FA fb = eval(rhs);
-                                        out = faops.FA.quickUnion(fa,fb);
+                                        out = faops.FA.union(fa,fb);
                                 } else if(on.op == Operations.Op.CAT){
                                         FA fa = eval(lhs);
                                         FA fb = eval(rhs);
@@ -73,26 +84,32 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
                                 } else if(on.op == Operations.Op.INT){
                                         FA fa = eval(lhs);
                                         FA fb = eval(rhs);
-                                        out = faops.FA.product(null,fa,fb);
+                                        out = faops.FA.intersect(fa,fb);
                                 } else if(on.op == Operations.Op.XOR){
-                                } else if(on.op == Operations.Op.MUL){
-                                } else if(on.op == Operations.Op.DIF){
+                                    FA fa = eval(lhs);
+                                        FA fb = eval(rhs);
+                                        out = faops.FA.xor(fa,fb);
                                 }
                         }
                         else {
                           SimpleNode arg = (SimpleNode) node.jjtGetChild(0);
                           if(on.op == Operations.Op.NEW){
-                            FileParser.ReInit(new FileInputStream(new File(FileParser.class.getResource(((StringNode)arg).getString()).getPath())));
-                            out = FileParser.toFa(FileParser.Start());
+                             try {
+                                                FileParser.ReInit(new FileInputStream(new File(FileParser.class.getResource(((StringNode)arg).getString()).getPath())));
+                                                try {
+                                                        out = FileParser.toFa(FileParser.Start());
+                                                } catch (fileparser.ParseException e) {
+                                                        throw new EvalException("Could not parse file " + ((StringNode)arg).getString() + " " + e.getMessage());
+                                                }
+                                        } catch (FileNotFoundException e) {
+                                                throw new EvalException("Could not open file " + ((StringNode)arg).getString());
+                                        }
                           } else if(on.op == Operations.Op.FROMREGEX){
-
-                            try
-                            {
-                                out = RegexParser.parseString(((StringNode)arg).getString());
-                                } catch(Exception e) {
-                                  System.err.println("Error in Regex");
-                                  e.printStackTrace();
-                                }
+                            try {
+                        out = RegexParser.parseString(((StringNode)arg).getString());
+                } catch(Exception e) {
+                        throw new EvalException("Error in Regex " + ((StringNode)arg).getString());
+                }
                           } else if(on.op == Operations.Op.PRINT){
                             out = eval(arg);
                             System.out.println(out);
@@ -102,10 +119,13 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
                           } else if(on.op == Operations.Op.STAR){
                             out = faops.FA.star(eval(arg));
                           } else if(on.op == Operations.Op.REV){
+                            out = eval(arg).reverse();
                           } else if(on.op == Operations.Op.NOT){
+                            out = eval(arg).not();
                           } else if(on.op == Operations.Op.TODFA){
                             out = eval(arg).toDFA();
                           } else if(on.op == Operations.Op.MIN){
+                            out = eval(arg).minimized();
                           }
                         }
                         break;
@@ -116,7 +136,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
                         SymNode syn = (SymNode) node;
                         out = vars.get(syn.varName);
                         if(out == null)
-                                throw new Exception("Variable " + syn.varName + " does not exist");
+                                throw new EvalException("Variable " + syn.varName + " does not exist");
                         break;
                 default:
                         for(int i = 0; i < node.jjtGetNumChildren(); i++){
@@ -361,7 +381,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
                       Token t;
     jj_consume_token(FA);
     t = jj_consume_token(SYM);
-    jj_consume_token(30);
+    jj_consume_token(EQUALS);
     {if (true) return t.image;}
     throw new Error("Missing return statement in function");
   }
@@ -369,7 +389,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
   static final public String Assign() throws ParseException {
                        Token t;
     t = jj_consume_token(SYM);
-    jj_consume_token(30);
+    jj_consume_token(EQUALS);
     {if (true) return t.image;}
     throw new Error("Missing return statement in function");
   }
@@ -672,65 +692,6 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     finally { jj_save(23, xla); }
   }
 
-  static private boolean jj_3R_8() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_21()) {
-    jj_scanpos = xsp;
-    if (jj_3_22()) {
-    jj_scanpos = xsp;
-    if (jj_3_23()) {
-    jj_scanpos = xsp;
-    if (jj_3_24()) return true;
-    }
-    }
-    }
-    return false;
-  }
-
-  static private boolean jj_3_11() {
-    if (jj_3R_13()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_20() {
-    if (jj_scan_token(FROMREGEX)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_10() {
-    if (jj_3R_12()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_6() {
-    if (jj_scan_token(UN)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_13() {
-    if (jj_scan_token(NOT)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_19() {
-    if (jj_scan_token(NEW)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_12() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_19()) {
-    jj_scanpos = xsp;
-    if (jj_3_20()) return true;
-    }
-    if (jj_scan_token(OPEN)) return true;
-    if (jj_3R_15()) return true;
-    if (jj_scan_token(CLOSE)) return true;
-    return false;
-  }
-
   static private boolean jj_3_12() {
     if (jj_scan_token(REV)) return true;
     return false;
@@ -776,7 +737,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
 
   static private boolean jj_3R_5() {
     if (jj_scan_token(SYM)) return true;
-    if (jj_scan_token(30)) return true;
+    if (jj_scan_token(EQUALS)) return true;
     return false;
   }
 
@@ -795,7 +756,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
   static private boolean jj_3R_4() {
     if (jj_scan_token(FA)) return true;
     if (jj_scan_token(SYM)) return true;
-    if (jj_scan_token(30)) return true;
+    if (jj_scan_token(EQUALS)) return true;
     return false;
   }
 
@@ -943,6 +904,65 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
 
   static private boolean jj_3_21() {
     if (jj_scan_token(MUL)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_8() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_21()) {
+    jj_scanpos = xsp;
+    if (jj_3_22()) {
+    jj_scanpos = xsp;
+    if (jj_3_23()) {
+    jj_scanpos = xsp;
+    if (jj_3_24()) return true;
+    }
+    }
+    }
+    return false;
+  }
+
+  static private boolean jj_3_11() {
+    if (jj_3R_13()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_20() {
+    if (jj_scan_token(FROMREGEX)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_10() {
+    if (jj_3R_12()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_6() {
+    if (jj_scan_token(UN)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_13() {
+    if (jj_scan_token(NOT)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_19() {
+    if (jj_scan_token(NEW)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_12() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_19()) {
+    jj_scanpos = xsp;
+    if (jj_3_20()) return true;
+    }
+    if (jj_scan_token(OPEN)) return true;
+    if (jj_3R_15()) return true;
+    if (jj_scan_token(CLOSE)) return true;
     return false;
   }
 

@@ -1,7 +1,7 @@
 /**
  * JJTree template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
  */options{
-  LOOKAHEAD = 2;  static = true;}PARSER_BEGIN(RegexParser)package regexparser;
+  LOOKAHEAD = 1;  static = true;}PARSER_BEGIN(RegexParser)package regexparser;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -77,8 +77,18 @@ public class RegexParser{  public static void main(String args [])  {
 | < PLUS : "+">
 | < EPSILON : "!">
 | < SYM : ~["(",")","*","+","!"] >
-}SimpleNode Start() :{}{  Expression() (< ENDL >| < EOF >) 
-    {    return jjtThis;  }}void Expression() #void:
+}
+SimpleNode Start() :
+{}
+{
+  Expression() (< ENDL >| < EOF >) 
+  
+  {
+    return jjtThis;
+  }
+}
+
+void Expression() #void:
 {}
 {
   Expression1() [ < PLUS > Expression() {jjtThis.setOp("+");} #Op(2)]
@@ -99,6 +109,10 @@ void Expression2() #void :
 void Terminal() #Terminal:
 {Token t;}
 {
-  t = < SYM >  {
-    jjtThis.symbol = t.image;  }}
+  t = < SYM >
+  {
+    jjtThis.symbol = t.image;
+  }
+}
+
 

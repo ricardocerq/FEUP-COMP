@@ -59,16 +59,26 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
       e.printStackTrace();
     }
   }
-
+  private static class Transition {
+          String symbol;
+          int src;
+          int dst;
+          public Transition(String symbol, int src, int dst){
+                  this.symbol = symbol;
+                  this.src = src;
+                  this.dst = dst;
+          }
+  }
   public static FA toFa(SimpleNode root)
   {
     FA out = new FA();
     ArrayList < String > stateNames = new ArrayList < String > ();
+    ArrayList< Transition > transitions = new ArrayList < Transition > ();
     try
     {
       for (int i = 0; i < root.jjtGetNumChildren(); i++)
       {
-        faRead(root.jjtGetChild(i), out, stateNames);
+        faRead(root.jjtGetChild(i), out, stateNames, transitions);
       }
     }
     catch (Exception e)
@@ -76,45 +86,68 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
       e.printStackTrace();
       return null;
     }
+    for(Transition t : transitions)
+    {
+                out.addTransition(t.symbol, t.src, t.dst);
+                //System.out.println("Added transition " + t.src + "-(" + t.symbol + ")->" + t.dst);
+        }
+    out.finalizeConstruction();
     out.computeIsDFA();
     return out;
   }
-
-  public static void faRead(Node node, FA fa, ArrayList < String > stateNames) throws Exception
+ public static int lookup(FA fa, String state, ArrayList < String > stateNames){
+          int index = stateNames.indexOf(state);
+      if (index == - 1){
+                System.out.println("Added state " + state + " as " + stateNames.size());
+          stateNames.add(state);
+          fa.incNumStates();
+          return stateNames.size() - 1;
+      } else {
+          return index;
+      }
+  }
+  public static String faRead(Node node, FA fa, ArrayList < String > stateNames, ArrayList< Transition > transitions)
   {
+        String out = "";
     switch (((SimpleNode) node).id)
     {
       case FileParserTreeConstants.JJTSTATE : StateNode stateNode = (StateNode) node;
-      if (stateNode.isStartState)
-      {
-        int index = stateNames.indexOf(stateNode.name);
-        if (index == - 1) throw new Exception("Start State does not exist");
-        fa.setInitialState(index);
-      }
-      else
-      {
-        if (stateNames.contains(stateNode.name)) throw new Exception("State " + stateNode.name + " is repeated");
-        fa.incNumStates();
-        if (stateNode.isFinalState) fa.addFinalState(stateNames.size());
-        stateNames.add(stateNode.name);
-      }
-      break;
+              if (stateNode.isStartState)
+              {
+                int index = lookup(fa, stateNode.names.get(0), stateNames);
+                fa.setInitialState(index);
+              }
+              else
+              {
+                for(String name : stateNode.names){
+                        if (stateNames.contains(name)) {
+                                out+="State " + name + " is repeated";
+                                continue;
+                        }
+                    fa.incNumStates();
+                    if (stateNode.isFinalState)
+                        fa.addFinalState(stateNames.size());
+                    stateNames.add(name);
+                    System.out.println("Added state " + name + " as " + (stateNames.size() - 1));
+                }
+              }
+              break;
       case FileParserTreeConstants.JJTTRANSITION :
-      TransitionNode tNode = (TransitionNode) node;
-      int srcindex = stateNames.indexOf(tNode.src);
-      if (srcindex == - 1) throw new Exception("Source State" + tNode.src + "does not exist");
-      int dstindex = stateNames.indexOf(tNode.dst);
-      if (dstindex == - 1) throw new Exception("Destination State " + tNode.dst + " does not exist");
-      for (String symbol : tNode.symbols)
-      {
-        fa.addTransition(symbol, srcindex, dstindex);
-      }
-      break;
+              TransitionNode tNode = (TransitionNode) node;
+              int srcindex =  lookup(fa, tNode.src, stateNames);
+              int dstindex = lookup(fa, tNode.dst, stateNames);
+              for (String symbol : tNode.symbols)
+              {
+                //fa.addTransition(symbol, srcindex, dstindex);
+                transitions.add(new Transition(symbol, srcindex, dstindex));
+              }
+              break;
     }
     for (int i = 0; i < node.jjtGetNumChildren(); i++)
     {
-      faRead(node.jjtGetChild(i), fa, stateNames);
+      out += faRead(node.jjtGetChild(i), fa, stateNames, transitions);
     }
+    return out;
   }
 
   static final public SimpleNode Start() throws ParseException {
@@ -124,15 +157,22 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
   jjtree.openNodeScope(jjtn000);
     try {
       jj_consume_token(DIGRAPH);
-      if (jj_2_1(1000)) {
-        jj_consume_token(ID);
-      } else {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case QUOTE:
+      case ID:
+        Identifier();
+        break;
+      default:
+        jj_la1[0] = jj_gen;
         ;
       }
-      jj_consume_token(25);
-      if (jj_2_2(1000)) {
+      jj_consume_token(27);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case RANKDIR:
         RankDir();
-      } else {
+        break;
+      default:
+        jj_la1[1] = jj_gen;
         ;
       }
       StartDecl();
@@ -143,9 +183,12 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
         label_1:
         while (true) {
           StateDecl();
-          if (jj_2_3(1000)) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case NODE:
             ;
-          } else {
+            break;
+          default:
+            jj_la1[2] = jj_gen;
             break label_1;
           }
         }
@@ -176,9 +219,13 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
         label_2:
         while (true) {
           TransitionNode();
-          if (jj_2_4(1000)) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case QUOTE:
+          case ID:
             ;
-          } else {
+            break;
+          default:
+            jj_la1[3] = jj_gen;
             break label_2;
           }
         }
@@ -201,7 +248,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
     jjtree.closeNodeScope(jjtn002, true);
   }
       }
-      jj_consume_token(26);
+      jj_consume_token(28);
       jj_consume_token(0);
   jjtree.closeNodeScope(jjtn000, true);
   jjtc000 = false;
@@ -230,29 +277,50 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
 
   static final public void RankDir() throws ParseException {
     jj_consume_token(RANKDIR);
-    jj_consume_token(27);
+    jj_consume_token(EQUALS);
     jj_consume_token(LR);
-    jj_consume_token(ENDSTMT);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case ENDSTMT:
+      jj_consume_token(ENDSTMT);
+      break;
+    default:
+      jj_la1[4] = jj_gen;
+      ;
+    }
   }
 
   static final public void StartDecl() throws ParseException {
     jj_consume_token(NODE);
     jj_consume_token(OPEN);
     jj_consume_token(SHAPE);
-    jj_consume_token(27);
+    jj_consume_token(EQUALS);
     jj_consume_token(POINT);
-    jj_consume_token(28);
+    jj_consume_token(29);
     jj_consume_token(COLOR);
-    jj_consume_token(27);
+    jj_consume_token(EQUALS);
     jj_consume_token(WHITE);
-    jj_consume_token(28);
+    jj_consume_token(29);
     jj_consume_token(FONTCOLOR);
-    jj_consume_token(27);
+    jj_consume_token(EQUALS);
     jj_consume_token(WHITE);
     jj_consume_token(CLOSE);
-    jj_consume_token(ENDSTMT);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case ENDSTMT:
+      jj_consume_token(ENDSTMT);
+      break;
+    default:
+      jj_la1[5] = jj_gen;
+      ;
+    }
     jj_consume_token(START);
-    jj_consume_token(ENDSTMT);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case ENDSTMT:
+      jj_consume_token(ENDSTMT);
+      break;
+    default:
+      jj_la1[6] = jj_gen;
+      ;
+    }
   }
 
   static final public void StateDecl() throws ParseException {
@@ -264,34 +332,99 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
       jj_consume_token(NODE);
       jj_consume_token(OPEN);
       jj_consume_token(SHAPE);
-      jj_consume_token(27);
-      if (jj_2_5(1000)) {
+      jj_consume_token(EQUALS);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case DOUBLECIRCLE:
         jj_consume_token(DOUBLECIRCLE);
         ((StateNode) jjtn000).isFinalState = true;
-      } else if (jj_2_6(1000)) {
+        break;
+      case CIRCLE:
         jj_consume_token(CIRCLE);
-      } else {
+        break;
+      default:
+        jj_la1[7] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-      jj_consume_token(28);
+      jj_consume_token(29);
       jj_consume_token(COLOR);
-      jj_consume_token(27);
+      jj_consume_token(EQUALS);
       jj_consume_token(BLACK);
-      jj_consume_token(28);
+      jj_consume_token(29);
       jj_consume_token(FONTCOLOR);
-      jj_consume_token(27);
+      jj_consume_token(EQUALS);
       jj_consume_token(BLACK);
       jj_consume_token(CLOSE);
-      jj_consume_token(ENDSTMT);
-      stateName = jj_consume_token(ID);
-    ((StateNode) jjtn000).name = stateName.image;
-      jj_consume_token(ENDSTMT);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case ENDSTMT:
+        jj_consume_token(ENDSTMT);
+        break;
+      default:
+        jj_la1[8] = jj_gen;
+        ;
+      }
+      label_3:
+      while (true) {
+        stateName = Identifier();
+    ((StateNode) jjtn000).addState(stateName.image);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case QUOTE:
+        case ID:
+          ;
+          break;
+        default:
+          jj_la1[9] = jj_gen;
+          break label_3;
+        }
+      }
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case ENDSTMT:
+        jj_consume_token(ENDSTMT);
+        break;
+      default:
+        jj_la1[10] = jj_gen;
+        ;
+      }
+    } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      {if (true) throw (RuntimeException)jjte000;}
+    }
+    if (jjte000 instanceof ParseException) {
+      {if (true) throw (ParseException)jjte000;}
+    }
+    {if (true) throw (Error)jjte000;}
     } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
     }
     }
+  }
+
+  static final public Token Identifier() throws ParseException {
+  Token token;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case ID:
+      token = jj_consume_token(ID);
+    {if (true) return token;}
+      break;
+    case QUOTE:
+      jj_consume_token(QUOTE);
+      token = jj_consume_token(ID);
+      jj_consume_token(QUOTE);
+        {if (true) return token;}
+      break;
+    default:
+      jj_la1[11] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
   }
 
   static final public void StartState() throws ParseException {
@@ -301,13 +434,32 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
   jjtree.openNodeScope(jjtn000);Token startStatename;
     try {
       jj_consume_token(START);
-      jj_consume_token(29);
-      startStatename = jj_consume_token(ID);
-    ((StateNode) jjtn000).name = startStatename.image;
-      jj_consume_token(ENDSTMT);
-    jjtree.closeNodeScope(jjtn000, true);
-    jjtc000 = false;
+      jj_consume_token(30);
+      startStatename = Identifier();
+    ((StateNode) jjtn000).addState(startStatename.image);
     ((StateNode) jjtn000).isStartState = true;
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case ENDSTMT:
+        jj_consume_token(ENDSTMT);
+        break;
+      default:
+        jj_la1[12] = jj_gen;
+        ;
+      }
+    } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      {if (true) throw (RuntimeException)jjte000;}
+    }
+    if (jjte000 instanceof ParseException) {
+      {if (true) throw (ParseException)jjte000;}
+    }
+    {if (true) throw (Error)jjte000;}
     } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
@@ -323,175 +475,62 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
   Token dst;
   Token transition;
     try {
-      src = jj_consume_token(ID);
-    ((TransitionNode) jjtn000).src = src.image;
-      jj_consume_token(29);
-      dst = jj_consume_token(ID);
-    ((TransitionNode) jjtn000).dst = dst.image;
+      src = Identifier();
+    ((TransitionNode) jjtn000).src = StateNode.removeQuotes(src.image);
+      jj_consume_token(30);
+      dst = Identifier();
+    ((TransitionNode) jjtn000).dst = StateNode.removeQuotes(dst.image);
       jj_consume_token(OPEN);
       jj_consume_token(LABEL);
-      jj_consume_token(27);
-      jj_consume_token(30);
-      label_3:
-      while (true) {
-        if (jj_2_7(1000)) {
-          ;
-        } else {
-          break label_3;
-        }
-        transition = jj_consume_token(ID);
-      ((TransitionNode) jjtn000).addTransition(transition.image);
-        jj_consume_token(28);
-      }
+      jj_consume_token(EQUALS);
+      jj_consume_token(QUOTE);
       transition = jj_consume_token(ID);
     ((TransitionNode) jjtn000).addTransition(transition.image);
-      jj_consume_token(30);
+    //System.out.println(((TransitionNode) jjtThis).src + "-(" + transition.image +")->" +  ((TransitionNode) jjtThis).dst);
+
+      label_4:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case 29:
+          ;
+          break;
+        default:
+          jj_la1[13] = jj_gen;
+          break label_4;
+        }
+        jj_consume_token(29);
+        transition = jj_consume_token(ID);
+      ((TransitionNode) jjtn000).addTransition(transition.image);
+      }
+      jj_consume_token(QUOTE);
       jj_consume_token(CLOSE);
-      jj_consume_token(ENDSTMT);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case ENDSTMT:
+        jj_consume_token(ENDSTMT);
+        break;
+      default:
+        jj_la1[14] = jj_gen;
+        ;
+      }
+    } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      {if (true) throw (RuntimeException)jjte000;}
+    }
+    if (jjte000 instanceof ParseException) {
+      {if (true) throw (ParseException)jjte000;}
+    }
+    {if (true) throw (Error)jjte000;}
     } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
     }
     }
-  }
-
-  static private boolean jj_2_1(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_1(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(0, xla); }
-  }
-
-  static private boolean jj_2_2(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_2(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(1, xla); }
-  }
-
-  static private boolean jj_2_3(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_3(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(2, xla); }
-  }
-
-  static private boolean jj_2_4(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_4(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(3, xla); }
-  }
-
-  static private boolean jj_2_5(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_5(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(4, xla); }
-  }
-
-  static private boolean jj_2_6(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_6(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(5, xla); }
-  }
-
-  static private boolean jj_2_7(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_7(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(6, xla); }
-  }
-
-  static private boolean jj_3R_4() {
-    if (jj_scan_token(RANKDIR)) return true;
-    if (jj_scan_token(27)) return true;
-    if (jj_scan_token(LR)) return true;
-    if (jj_scan_token(ENDSTMT)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_7() {
-    if (jj_scan_token(ID)) return true;
-    if (jj_scan_token(28)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_5() {
-    if (jj_scan_token(DOUBLECIRCLE)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_5() {
-    if (jj_scan_token(NODE)) return true;
-    if (jj_scan_token(OPEN)) return true;
-    if (jj_scan_token(SHAPE)) return true;
-    if (jj_scan_token(27)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_5()) {
-    jj_scanpos = xsp;
-    if (jj_3_6()) return true;
-    }
-    if (jj_scan_token(28)) return true;
-    if (jj_scan_token(COLOR)) return true;
-    if (jj_scan_token(27)) return true;
-    if (jj_scan_token(BLACK)) return true;
-    if (jj_scan_token(28)) return true;
-    if (jj_scan_token(FONTCOLOR)) return true;
-    if (jj_scan_token(27)) return true;
-    if (jj_scan_token(BLACK)) return true;
-    if (jj_scan_token(CLOSE)) return true;
-    if (jj_scan_token(ENDSTMT)) return true;
-    if (jj_scan_token(ID)) return true;
-    if (jj_scan_token(ENDSTMT)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_1() {
-    if (jj_scan_token(ID)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_4() {
-    if (jj_3R_6()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_6() {
-    if (jj_scan_token(ID)) return true;
-    if (jj_scan_token(29)) return true;
-    if (jj_scan_token(ID)) return true;
-    if (jj_scan_token(OPEN)) return true;
-    if (jj_scan_token(LABEL)) return true;
-    if (jj_scan_token(27)) return true;
-    if (jj_scan_token(30)) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_7()) { jj_scanpos = xsp; break; }
-    }
-    if (jj_scan_token(ID)) return true;
-    if (jj_scan_token(30)) return true;
-    if (jj_scan_token(CLOSE)) return true;
-    if (jj_scan_token(ENDSTMT)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_3() {
-    if (jj_3R_5()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_2() {
-    if (jj_3R_4()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_6() {
-    if (jj_scan_token(CIRCLE)) return true;
-    return false;
   }
 
   static private boolean jj_initialized_once = false;
@@ -503,20 +542,15 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
   /** Next token. */
   static public Token jj_nt;
   static private int jj_ntk;
-  static private Token jj_scanpos, jj_lastpos;
-  static private int jj_la;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[0];
+  static final private int[] jj_la1 = new int[15];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {};
+      jj_la1_0 = new int[] {0x6000000,0x100,0x80000,0x6000000,0x1000000,0x1000000,0x1000000,0x60000,0x1000000,0x6000000,0x1000000,0x6000000,0x1000000,0x20000000,0x1000000,};
    }
-  static final private JJCalls[] jj_2_rtns = new JJCalls[7];
-  static private boolean jj_rescan = false;
-  static private int jj_gc = 0;
 
   /** Constructor with InputStream. */
   public FileParser(java.io.InputStream stream) {
@@ -536,8 +570,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 15; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -552,8 +585,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 15; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -570,8 +602,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 15; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -582,8 +613,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 15; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -599,8 +629,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 15; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -610,8 +639,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 15; i++) jj_la1[i] = -1;
   }
 
   static private Token jj_consume_token(int kind) throws ParseException {
@@ -621,44 +649,11 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
     jj_ntk = -1;
     if (token.kind == kind) {
       jj_gen++;
-      if (++jj_gc > 100) {
-        jj_gc = 0;
-        for (int i = 0; i < jj_2_rtns.length; i++) {
-          JJCalls c = jj_2_rtns[i];
-          while (c != null) {
-            if (c.gen < jj_gen) c.first = null;
-            c = c.next;
-          }
-        }
-      }
       return token;
     }
     token = oldToken;
     jj_kind = kind;
     throw generateParseException();
-  }
-
-  static private final class LookaheadSuccess extends java.lang.Error { }
-  static final private LookaheadSuccess jj_ls = new LookaheadSuccess();
-  static private boolean jj_scan_token(int kind) {
-    if (jj_scanpos == jj_lastpos) {
-      jj_la--;
-      if (jj_scanpos.next == null) {
-        jj_lastpos = jj_scanpos = jj_scanpos.next = token_source.getNextToken();
-      } else {
-        jj_lastpos = jj_scanpos = jj_scanpos.next;
-      }
-    } else {
-      jj_scanpos = jj_scanpos.next;
-    }
-    if (jj_rescan) {
-      int i = 0; Token tok = token;
-      while (tok != null && tok != jj_scanpos) { i++; tok = tok.next; }
-      if (tok != null) jj_add_error_token(kind, i);
-    }
-    if (jj_scanpos.kind != kind) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) throw jj_ls;
-    return false;
   }
 
 
@@ -691,33 +686,6 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
   static private java.util.List<int[]> jj_expentries = new java.util.ArrayList<int[]>();
   static private int[] jj_expentry;
   static private int jj_kind = -1;
-  static private int[] jj_lasttokens = new int[100];
-  static private int jj_endpos;
-
-  static private void jj_add_error_token(int kind, int pos) {
-    if (pos >= 100) return;
-    if (pos == jj_endpos + 1) {
-      jj_lasttokens[jj_endpos++] = kind;
-    } else if (jj_endpos != 0) {
-      jj_expentry = new int[jj_endpos];
-      for (int i = 0; i < jj_endpos; i++) {
-        jj_expentry[i] = jj_lasttokens[i];
-      }
-      jj_entries_loop: for (java.util.Iterator<?> it = jj_expentries.iterator(); it.hasNext();) {
-        int[] oldentry = (int[])(it.next());
-        if (oldentry.length == jj_expentry.length) {
-          for (int i = 0; i < jj_expentry.length; i++) {
-            if (oldentry[i] != jj_expentry[i]) {
-              continue jj_entries_loop;
-            }
-          }
-          jj_expentries.add(jj_expentry);
-          break jj_entries_loop;
-        }
-      }
-      if (pos != 0) jj_lasttokens[(jj_endpos = pos) - 1] = kind;
-    }
-  }
 
   /** Generate ParseException. */
   static public ParseException generateParseException() {
@@ -727,7 +695,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 0; i++) {
+    for (int i = 0; i < 15; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -743,9 +711,6 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
         jj_expentries.add(jj_expentry);
       }
     }
-    jj_endpos = 0;
-    jj_rescan_token();
-    jj_add_error_token(0, 0);
     int[][] exptokseq = new int[jj_expentries.size()][];
     for (int i = 0; i < jj_expentries.size(); i++) {
       exptokseq[i] = jj_expentries.get(i);
@@ -759,47 +724,6 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
 
   /** Disable tracing. */
   static final public void disable_tracing() {
-  }
-
-  static private void jj_rescan_token() {
-    jj_rescan = true;
-    for (int i = 0; i < 7; i++) {
-    try {
-      JJCalls p = jj_2_rtns[i];
-      do {
-        if (p.gen > jj_gen) {
-          jj_la = p.arg; jj_lastpos = jj_scanpos = p.first;
-          switch (i) {
-            case 0: jj_3_1(); break;
-            case 1: jj_3_2(); break;
-            case 2: jj_3_3(); break;
-            case 3: jj_3_4(); break;
-            case 4: jj_3_5(); break;
-            case 5: jj_3_6(); break;
-            case 6: jj_3_7(); break;
-          }
-        }
-        p = p.next;
-      } while (p != null);
-      } catch(LookaheadSuccess ls) { }
-    }
-    jj_rescan = false;
-  }
-
-  static private void jj_save(int index, int xla) {
-    JJCalls p = jj_2_rtns[index];
-    while (p.gen > jj_gen) {
-      if (p.next == null) { p = p.next = new JJCalls(); break; }
-      p = p.next;
-    }
-    p.gen = jj_gen + xla - jj_la; p.first = token; p.arg = xla;
-  }
-
-  static final class JJCalls {
-    int gen;
-    Token first;
-    int arg;
-    JJCalls next;
   }
 
 }

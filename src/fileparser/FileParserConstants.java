@@ -43,9 +43,13 @@ public interface FileParserConstants {
   /** RegularExpression Id. */
   int CLOSE = 22;
   /** RegularExpression Id. */
-  int ENDSTMT = 23;
+  int EQUALS = 23;
   /** RegularExpression Id. */
-  int ID = 24;
+  int ENDSTMT = 24;
+  /** RegularExpression Id. */
+  int QUOTE = 25;
+  /** RegularExpression Id. */
+  int ID = 26;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -75,14 +79,14 @@ public interface FileParserConstants {
     "\"LR\"",
     "\"[\"",
     "\"]\"",
+    "\"=\"",
     "\";\"",
+    "\"\\\"\"",
     "<ID>",
     "\"{\"",
     "\"}\"",
-    "\"=\"",
     "\",\"",
     "\"->\"",
-    "\"\\\"\"",
   };
 
 }

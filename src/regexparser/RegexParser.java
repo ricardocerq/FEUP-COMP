@@ -79,11 +79,15 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
   jjtree.openNodeScope(jjtn000);
     try {
       Expression();
-      if (jj_2_1(2)) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case ENDL:
         jj_consume_token(ENDL);
-      } else if (jj_2_2(2)) {
+        break;
+      case 0:
         jj_consume_token(0);
-      } else {
+        break;
+      default:
+        jj_la1[0] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -114,7 +118,8 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
 
   static final public void Expression() throws ParseException {
     Expression1();
-    if (jj_2_3(2)) {
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case PLUS:
       jj_consume_token(PLUS);
       Expression();
                                           SimpleNode jjtn001 = new SimpleNode(JJTOP);
@@ -129,14 +134,18 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
                                             jjtree.closeNodeScope(jjtn001,  2);
                                           }
       }
-    } else {
+      break;
+    default:
+      jj_la1[1] = jj_gen;
       ;
     }
   }
 
   static final public void Expression1() throws ParseException {
     Expression2();
-    if (jj_2_4(2)) {
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case OPEN:
+    case SYM:
       Expression1();
                                 SimpleNode jjtn001 = new SimpleNode(JJTOP);
                                 boolean jjtc001 = true;
@@ -150,23 +159,30 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
                                   jjtree.closeNodeScope(jjtn001,  2);
                                 }
       }
-    } else {
+      break;
+    default:
+      jj_la1[2] = jj_gen;
       ;
     }
   }
 
   static final public void Expression2() throws ParseException {
-    if (jj_2_5(2)) {
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case OPEN:
       jj_consume_token(OPEN);
       Expression();
       jj_consume_token(CLOSE);
-    } else if (jj_2_6(2)) {
+      break;
+    case SYM:
       Terminal();
-    } else {
+      break;
+    default:
+      jj_la1[3] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
-    if (jj_2_7(2)) {
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case STAR:
       jj_consume_token(STAR);
                                                               SimpleNode jjtn001 = new SimpleNode(JJTOP);
                                                               boolean jjtc001 = true;
@@ -180,7 +196,9 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
                                                                 jjtree.closeNodeScope(jjtn001,  1);
                                                               }
       }
-    } else {
+      break;
+    default:
+      jj_la1[4] = jj_gen;
       ;
     }
   }
@@ -202,122 +220,6 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
     }
   }
 
-  static private boolean jj_2_1(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_1(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(0, xla); }
-  }
-
-  static private boolean jj_2_2(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_2(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(1, xla); }
-  }
-
-  static private boolean jj_2_3(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_3(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(2, xla); }
-  }
-
-  static private boolean jj_2_4(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_4(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(3, xla); }
-  }
-
-  static private boolean jj_2_5(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_5(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(4, xla); }
-  }
-
-  static private boolean jj_2_6(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_6(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(5, xla); }
-  }
-
-  static private boolean jj_2_7(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_7(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(6, xla); }
-  }
-
-  static private boolean jj_3_6() {
-    if (jj_3R_3()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_1() {
-    if (jj_3R_2()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_4() {
-    if (jj_3R_2()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_3() {
-    if (jj_scan_token(SYM)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_3() {
-    if (jj_scan_token(PLUS)) return true;
-    if (jj_3R_1()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_7() {
-    if (jj_scan_token(STAR)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_2() {
-    if (jj_scan_token(0)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_5() {
-    if (jj_scan_token(OPEN)) return true;
-    if (jj_3R_1()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_4() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_5()) {
-    jj_scanpos = xsp;
-    if (jj_3_6()) return true;
-    }
-    xsp = jj_scanpos;
-    if (jj_3_7()) jj_scanpos = xsp;
-    return false;
-  }
-
-  static private boolean jj_3R_2() {
-    if (jj_3R_4()) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_4()) jj_scanpos = xsp;
-    return false;
-  }
-
-  static private boolean jj_3_1() {
-    if (jj_scan_token(ENDL)) return true;
-    return false;
-  }
-
   static private boolean jj_initialized_once = false;
   /** Generated Token Manager. */
   static public RegexParserTokenManager token_source;
@@ -327,20 +229,15 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
   /** Next token. */
   static public Token jj_nt;
   static private int jj_ntk;
-  static private Token jj_scanpos, jj_lastpos;
-  static private int jj_la;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[0];
+  static final private int[] jj_la1 = new int[5];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {};
+      jj_la1_0 = new int[] {0x41,0x400,0x1080,0x1080,0x200,};
    }
-  static final private JJCalls[] jj_2_rtns = new JJCalls[7];
-  static private boolean jj_rescan = false;
-  static private int jj_gc = 0;
 
   /** Constructor with InputStream. */
   public RegexParser(java.io.InputStream stream) {
@@ -360,8 +257,7 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -376,8 +272,7 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -394,8 +289,7 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -406,8 +300,7 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -423,8 +316,7 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -434,8 +326,7 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 5; i++) jj_la1[i] = -1;
   }
 
   static private Token jj_consume_token(int kind) throws ParseException {
@@ -445,44 +336,11 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
     jj_ntk = -1;
     if (token.kind == kind) {
       jj_gen++;
-      if (++jj_gc > 100) {
-        jj_gc = 0;
-        for (int i = 0; i < jj_2_rtns.length; i++) {
-          JJCalls c = jj_2_rtns[i];
-          while (c != null) {
-            if (c.gen < jj_gen) c.first = null;
-            c = c.next;
-          }
-        }
-      }
       return token;
     }
     token = oldToken;
     jj_kind = kind;
     throw generateParseException();
-  }
-
-  static private final class LookaheadSuccess extends java.lang.Error { }
-  static final private LookaheadSuccess jj_ls = new LookaheadSuccess();
-  static private boolean jj_scan_token(int kind) {
-    if (jj_scanpos == jj_lastpos) {
-      jj_la--;
-      if (jj_scanpos.next == null) {
-        jj_lastpos = jj_scanpos = jj_scanpos.next = token_source.getNextToken();
-      } else {
-        jj_lastpos = jj_scanpos = jj_scanpos.next;
-      }
-    } else {
-      jj_scanpos = jj_scanpos.next;
-    }
-    if (jj_rescan) {
-      int i = 0; Token tok = token;
-      while (tok != null && tok != jj_scanpos) { i++; tok = tok.next; }
-      if (tok != null) jj_add_error_token(kind, i);
-    }
-    if (jj_scanpos.kind != kind) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) throw jj_ls;
-    return false;
   }
 
 
@@ -515,33 +373,6 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
   static private java.util.List<int[]> jj_expentries = new java.util.ArrayList<int[]>();
   static private int[] jj_expentry;
   static private int jj_kind = -1;
-  static private int[] jj_lasttokens = new int[100];
-  static private int jj_endpos;
-
-  static private void jj_add_error_token(int kind, int pos) {
-    if (pos >= 100) return;
-    if (pos == jj_endpos + 1) {
-      jj_lasttokens[jj_endpos++] = kind;
-    } else if (jj_endpos != 0) {
-      jj_expentry = new int[jj_endpos];
-      for (int i = 0; i < jj_endpos; i++) {
-        jj_expentry[i] = jj_lasttokens[i];
-      }
-      jj_entries_loop: for (java.util.Iterator<?> it = jj_expentries.iterator(); it.hasNext();) {
-        int[] oldentry = (int[])(it.next());
-        if (oldentry.length == jj_expentry.length) {
-          for (int i = 0; i < jj_expentry.length; i++) {
-            if (oldentry[i] != jj_expentry[i]) {
-              continue jj_entries_loop;
-            }
-          }
-          jj_expentries.add(jj_expentry);
-          break jj_entries_loop;
-        }
-      }
-      if (pos != 0) jj_lasttokens[(jj_endpos = pos) - 1] = kind;
-    }
-  }
 
   /** Generate ParseException. */
   static public ParseException generateParseException() {
@@ -551,7 +382,7 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 0; i++) {
+    for (int i = 0; i < 5; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -567,9 +398,6 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
         jj_expentries.add(jj_expentry);
       }
     }
-    jj_endpos = 0;
-    jj_rescan_token();
-    jj_add_error_token(0, 0);
     int[][] exptokseq = new int[jj_expentries.size()][];
     for (int i = 0; i < jj_expentries.size(); i++) {
       exptokseq[i] = jj_expentries.get(i);
@@ -583,47 +411,6 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, Re
 
   /** Disable tracing. */
   static final public void disable_tracing() {
-  }
-
-  static private void jj_rescan_token() {
-    jj_rescan = true;
-    for (int i = 0; i < 7; i++) {
-    try {
-      JJCalls p = jj_2_rtns[i];
-      do {
-        if (p.gen > jj_gen) {
-          jj_la = p.arg; jj_lastpos = jj_scanpos = p.first;
-          switch (i) {
-            case 0: jj_3_1(); break;
-            case 1: jj_3_2(); break;
-            case 2: jj_3_3(); break;
-            case 3: jj_3_4(); break;
-            case 4: jj_3_5(); break;
-            case 5: jj_3_6(); break;
-            case 6: jj_3_7(); break;
-          }
-        }
-        p = p.next;
-      } while (p != null);
-      } catch(LookaheadSuccess ls) { }
-    }
-    jj_rescan = false;
-  }
-
-  static private void jj_save(int index, int xla) {
-    JJCalls p = jj_2_rtns[index];
-    while (p.gen > jj_gen) {
-      if (p.next == null) { p = p.next = new JJCalls(); break; }
-      p = p.next;
-    }
-    p.gen = jj_gen + xla - jj_la; p.first = token; p.arg = xla;
-  }
-
-  static final class JJCalls {
-    int gen;
-    Token first;
-    int arg;
-    JJCalls next;
   }
 
 }

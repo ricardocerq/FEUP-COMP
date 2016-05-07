@@ -1,6 +1,6 @@
 /**
  * JJTree template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
- */options{  LOOKAHEAD= 1000;  NODE_FACTORY = "NodeFactory";}PARSER_BEGIN(FileParser)package fileparser;
+ */options{  LOOKAHEAD= 1;  NODE_FACTORY = "NodeFactory";}PARSER_BEGIN(FileParser)package fileparser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,8 +54,186 @@ import java.util.Arrays;public class FileParser{  public static void main(Str
     catch (Exception e)
     {
       e.printStackTrace();
-    }  }  public static FA toFa(SimpleNode root)  {    FA out = new FA();    ArrayList < String > stateNames = new ArrayList < String > ();    try    {      for (int i = 0; i < root.jjtGetNumChildren(); i++)      {        faRead(root.jjtGetChild(i), out, stateNames);      }    }    catch (Exception e)    {      e.printStackTrace();      return null;    }
-    out.computeIsDFA();    return out;  }  public static void faRead(Node node, FA fa, ArrayList < String > stateNames) throws Exception  {    switch (((SimpleNode) node).id)    {      case FileParserTreeConstants.JJTSTATE : StateNode stateNode = (StateNode) node;      if (stateNode.isStartState)      {        int index = stateNames.indexOf(stateNode.name);        if (index == - 1) throw new Exception("Start State does not exist");        fa.setInitialState(index);      }      else      {        if (stateNames.contains(stateNode.name)) throw new Exception("State " + stateNode.name + " is repeated");        fa.incNumStates();        if (stateNode.isFinalState) fa.addFinalState(stateNames.size());        stateNames.add(stateNode.name);      }      break;      case FileParserTreeConstants.JJTTRANSITION :       TransitionNode tNode = (TransitionNode) node;      int srcindex = stateNames.indexOf(tNode.src);      if (srcindex == - 1) throw new Exception("Source State" + tNode.src + "does not exist");      int dstindex = stateNames.indexOf(tNode.dst);      if (dstindex == - 1) throw new Exception("Destination State " + tNode.dst + " does not exist");      for (String symbol : tNode.symbols)      {        fa.addTransition(symbol, srcindex, dstindex);      }      break;    }    for (int i = 0; i < node.jjtGetNumChildren(); i++)    {      faRead(node.jjtGetChild(i), fa, stateNames);    }  }}PARSER_END(FileParser)SKIP :{  " "| "\t"| "\n"| "\r"| < "//" (~[ "\n", "\r" ])*    (      "\n"    | "\r"    | "\r\n"    ) >| < "/*" (~[ "*" ])* "*"    (      ~[ "/" ] (~[ "*" ])* "*"    )*    "/" >}TOKEN : /* LITERALS */{  < DIGRAPH : "digraph" >| < RANKDIR : "rankdir" >| < START : "start" >| < SHAPE : "shape" >| < COLOR : "color" >| < FONTCOLOR : "fontcolor" >| < POINT : "point" >| < WHITE : "white" >| < BLACK : "black" >| < LABEL : "label" >| < CIRCLE : "circle" >| < DOUBLECIRCLE : "doublecircle" >| < NODE : "node" >| < LR : "LR" >| < OPEN : "[" >| < CLOSE : "]" >| < ENDSTMT : ";" >| < ID : ([ "0"-"9", "A"-"Z", "a"-"z", "_", "!" ])+ >}SimpleNode Start() :{}{  < DIGRAPH > (< ID >)? "{"  (    RankDir()  )?  StartDecl()  (    StateDecl()  )+  #States StartState()(  TransitionNode())+#Transitions "}" < EOF >{  return jjtThis;}}void RankDir() #void :{}{  < RANKDIR > "=" < LR > ";"}void StartDecl() #void :{}{  //< START >
-  < NODE > < OPEN > < SHAPE > "=" < POINT > "," < COLOR > "=" < WHITE > "," < FONTCOLOR > "=" < WHITE > < CLOSE > < ENDSTMT > < START > < ENDSTMT >}void StateDecl() #State :{  Token stateName;}{  //(< NODE >  < OPEN > < SHAPE> "=" < DOUBLECIRCLE > "," < COLOR >  "=" < BLACK > "," < FONTCOLOR > "=" < BLACK > < CLOSE > < ENDSTMT > stateName = < ID > { jjtThis.name = stateName.image; } < ENDSTMT > #FinalState)
-  //|(< NODE > < OPEN > < SHAPE > "=" < CIRCLE > < CLOSE > < ENDSTMT > stateName = < ID > { jjtThis.name = stateName.image; } < ENDSTMT > #NonFinalState)
-  < NODE > < OPEN > < SHAPE > "="  (    (      < DOUBLECIRCLE >      {        ((StateNode) jjtThis).isFinalState = true;      }    )  | (< CIRCLE >)  )  "," < COLOR > "=" < BLACK > "," < FONTCOLOR > "=" < BLACK > < CLOSE > < ENDSTMT > stateName = < ID >  {    ((StateNode) jjtThis).name = stateName.image;  }  < ENDSTMT >}void StartState() #State :{  Token startStatename;}{  < START > "->" startStatename = < ID >  {    ((StateNode) jjtThis).name = startStatename.image;  }  < ENDSTMT >  {    ((StateNode) jjtThis).isStartState = true;  }}void TransitionNode() #Transition :{  Token src;  Token dst;  Token transition;}{  src = < ID >  {    ((TransitionNode) jjtThis).src = src.image;  }  "->" dst = < ID >  {    ((TransitionNode) jjtThis).dst = dst.image;  }  < OPEN > < LABEL > "=" "\""  (    transition = < ID >    {      ((TransitionNode) jjtThis).addTransition(transition.image);    }    ","  )*  transition = < ID >  {    ((TransitionNode) jjtThis).addTransition(transition.image);  }  "\"" < CLOSE > < ENDSTMT >}
+    }  }  private static class Transition {
+	  String symbol;
+	  int src;
+	  int dst;
+	  public Transition(String symbol, int src, int dst){
+		  this.symbol = symbol;
+		  this.src = src;
+		  this.dst = dst;
+	  }
+  }  public static FA toFa(SimpleNode root)  {    FA out = new FA();    ArrayList < String > stateNames = new ArrayList < String > ();
+    ArrayList< Transition > transitions = new ArrayList < Transition > ();    try    {      for (int i = 0; i < root.jjtGetNumChildren(); i++)      {        faRead(root.jjtGetChild(i), out, stateNames, transitions);      }    }    catch (Exception e)    {      e.printStackTrace();      return null;    }
+    for(Transition t : transitions)    {		out.addTransition(t.symbol, t.src, t.dst);
+		//System.out.println("Added transition " + t.src + "-(" + t.symbol + ")->" + t.dst);
+  	}
+    out.finalizeConstruction();
+    out.computeIsDFA();    return out;  } public static int lookup(FA fa, String state, ArrayList < String > stateNames){
+	  int index = stateNames.indexOf(state);
+      if (index == - 1){
+        	System.out.println("Added state " + state + " as " + stateNames.size());
+    	  stateNames.add(state);
+    	  fa.incNumStates();
+    	  return stateNames.size() - 1;
+      } else {
+    	  return index;
+      }
+  }
+  public static String faRead(Node node, FA fa, ArrayList < String > stateNames, ArrayList< Transition > transitions)
+  {
+	String out = "";
+    switch (((SimpleNode) node).id)
+    {
+      case FileParserTreeConstants.JJTSTATE : StateNode stateNode = (StateNode) node;
+	      if (stateNode.isStartState)
+	      {
+	        int index = lookup(fa, stateNode.names.get(0), stateNames);
+	        fa.setInitialState(index);
+	      }
+	      else
+	      {
+	    	for(String name : stateNode.names){
+	    		if (stateNames.contains(name)) {
+	    			out+="State " + name + " is repeated";
+	    			continue;
+	    		}
+	            fa.incNumStates();
+	            if (stateNode.isFinalState) 
+	            	fa.addFinalState(stateNames.size());
+	            stateNames.add(name);
+	            System.out.println("Added state " + name + " as " + (stateNames.size() - 1));
+	    	}
+	      }
+	      break;
+      case FileParserTreeConstants.JJTTRANSITION :
+	      TransitionNode tNode = (TransitionNode) node;
+	      int srcindex =  lookup(fa, tNode.src, stateNames);
+	      int dstindex = lookup(fa, tNode.dst, stateNames);
+	      for (String symbol : tNode.symbols)
+	      {
+	        //fa.addTransition(symbol, srcindex, dstindex);
+	        transitions.add(new Transition(symbol, srcindex, dstindex));
+	      }
+	      break;
+    }
+    for (int i = 0; i < node.jjtGetNumChildren(); i++)
+    {
+      out += faRead(node.jjtGetChild(i), fa, stateNames, transitions);
+    }
+    return out;
+  }}PARSER_END(FileParser)SKIP :{  " "| "\t"| "\n"| "\r"| < "//" (~[ "\n", "\r" ])*    (      "\n"    | "\r"    | "\r\n"    ) >| < "/*" (~[ "*" ])* "*"    (      ~[ "/" ] (~[ "*" ])* "*"    )*    "/" >}TOKEN : /* LITERALS */{  < DIGRAPH : "digraph" >| < RANKDIR : "rankdir" >| < START : "start" >| < SHAPE : "shape" >| < COLOR : "color" >| < FONTCOLOR : "fontcolor" >| < POINT : "point" >| < WHITE : "white" >| < BLACK : "black" >| < LABEL : "label" >| < CIRCLE : "circle" >| < DOUBLECIRCLE : "doublecircle" >| < NODE : "node" >| < LR : "LR" >| < OPEN : "[" >| < CLOSE : "]" >
+| < EQUALS : "=">| < ENDSTMT : ";" >
+| < QUOTE : "\"" >| < ID : ([ "0"-"9", "A"-"Z", "a"-"z", "_", "!", "."])+>}
+SimpleNode Start() :
+{}
+{
+  < DIGRAPH > (Identifier())? "{"
+  (
+    RankDir()
+  )?
+  StartDecl()
+  (
+    StateDecl()
+  )+
+  #States
+  //(< NODE > < OPEN > < SHAPE > < EQUALS > < CIRCLE > < OPEN > (< ENDSTMT >)* )
+  StartState()
+(
+  TransitionNode()
+)+
+#Transitions
+"}" < EOF >
+{
+  return jjtThis;
+}
+
+}
+
+void RankDir() #void :
+{}
+{
+  < RANKDIR > < EQUALS > < LR > (< ENDSTMT >)?
+}
+
+void StartDecl() #void :
+{}
+{
+  < NODE > < OPEN > < SHAPE > < EQUALS > < POINT > "," < COLOR > "=" < WHITE > "," < FONTCOLOR > "=" < WHITE > < CLOSE > (< ENDSTMT >)? < START > (< ENDSTMT >)?
+}
+
+void StateDecl() #State :
+{
+  Token stateName;
+}
+{
+  < NODE > < OPEN > < SHAPE > < EQUALS >
+  (
+    (
+      < DOUBLECIRCLE >
+      {
+        ((StateNode) jjtThis).isFinalState = true;
+      }
+    )
+  | (< CIRCLE >)
+  )
+  "," < COLOR > < EQUALS > < BLACK > "," < FONTCOLOR > "=" < BLACK > < CLOSE > (< ENDSTMT >)? (stateName = Identifier()
+  {
+    ((StateNode) jjtThis).addState(stateName.image);
+  })+
+  (< ENDSTMT >)?
+}
+
+Token Identifier() #void :{
+  Token token;}
+{
+  (token  = < ID >)  {
+    return token;  }
+  |
+  (< QUOTE > token  = < ID > < QUOTE >)  {	return token;
+  }}
+
+void StartState() #State :
+{
+  Token startStatename;
+}
+{
+  < START > "->" startStatename = Identifier()
+  {
+    ((StateNode) jjtThis).addState(startStatename.image);
+    ((StateNode) jjtThis).isStartState = true;
+  }
+  (< ENDSTMT >)?
+}
+
+void TransitionNode() #Transition :
+{
+  Token src;
+  Token dst;
+  Token transition;
+}
+{
+  src = Identifier()
+  {
+    ((TransitionNode) jjtThis).src = StateNode.removeQuotes(src.image);
+  }
+  "->"
+  dst = Identifier()
+  {
+    ((TransitionNode) jjtThis).dst = StateNode.removeQuotes(dst.image);
+  }
+  < OPEN > < LABEL > < EQUALS > "\""
+  transition = < ID >
+  {
+    ((TransitionNode) jjtThis).addTransition(transition.image);
+    //System.out.println(((TransitionNode) jjtThis).src + "-(" + transition.image +")->" +  ((TransitionNode) jjtThis).dst);
+  }
+   (
+    ","
+    transition = < ID >
+    {
+      ((TransitionNode) jjtThis).addTransition(transition.image);
+    }
+  )*
+  "\"" < CLOSE > (< ENDSTMT >)?
+}

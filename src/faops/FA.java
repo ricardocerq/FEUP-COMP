@@ -53,7 +53,6 @@ public class FA {
 					return isDFA;
 				}
 			}
-			it.remove();
 		}
 		isDFA = true;
 		return isDFA;
@@ -64,7 +63,7 @@ public class FA {
 	}
 	public FA(FA fa) {
 		this.initialState = fa.initialState;
-		this.numStates = fa.numStates;
+		this.setNumStates(fa.getNumStates());
 		fa.delta.forEach(new BiConsumer<String, ArrayList<ArrayList<Integer>>>() {
 			@Override
 			public void accept(String t, ArrayList<ArrayList<Integer>> u) {
@@ -81,7 +80,7 @@ public class FA {
 			Map<String, ArrayList<ArrayList<Integer>>> delta,
 			ArrayList<Integer> finalStates) {
 		this.initialState = initialState;
-		this.numStates = numStates;
+		this.setNumStates(numStates);
 		this.delta = delta;
 		this.finalStates = finalStates;
 	}
@@ -99,7 +98,7 @@ public class FA {
 	 * Increases the number of states and adds the size of the array of transitions.
 	 */
 	public void incNumStates() {
-		this.numStates++;
+		this.setNumStates(this.getNumStates() + 1);
 		this.delta.forEach(new BiConsumer<String, ArrayList<ArrayList<Integer>>>() {
 			@Override
 			public void accept(String t, ArrayList<ArrayList<Integer>> u) {
@@ -125,17 +124,17 @@ public class FA {
 	 * @param 	dstState	destiny state
 	 */
 	public void addTransition(String symbol, int srcState, int dstState) {
-		// System.out.println("Adding transition " + srcState + " -> " +
-		// dstState
-		// + " : " + symbol);
+		 //System.out.println("Adding transition " + srcState + " -> " + dstState  + " : " + symbol);
 		if (delta.containsKey(symbol)) {
+			//System.out.println("Contains key");
 			while(delta.get(symbol).size()<srcState+1){
 				delta.get(symbol).add(new ArrayList<Integer>());
 			}
 			delta.get(symbol).get(srcState).add(dstState);
 		} else {
+			//System.out.println("Does not contain key");
 			ArrayList<ArrayList<Integer>> states = new ArrayList<ArrayList<Integer>>();
-			for (int i = 0; i < numStates; i++) { // should be final number
+			for (int i = 0; i < getNumStates(); i++) { // should be final number
 				states.add(new ArrayList<Integer>());
 			}
 			states.get(srcState).add(dstState);
@@ -176,7 +175,7 @@ public class FA {
 		for (String s : input) {
 			applyInput(s, currentStates, nextStates);
 			applyInput("", nextStates, nextStates);
-			sortAndRemoveDups(nextStates, this.numStates);
+			sortAndRemoveDups(nextStates, this.getNumStates());
 			if (nextStates.size() == 0)
 				return false;
 			temp = currentStates;
@@ -235,11 +234,11 @@ public class FA {
 	/** 
 	 * 	Ensures all sets representing transitions have size equal to the number of states.
 	 */
-	private void finalizeConstruction(){
+	public void finalizeConstruction(){
 		delta.forEach(new BiConsumer<String, ArrayList<ArrayList<Integer>>>() {
 				@Override
 				public void accept(String t, ArrayList<ArrayList<Integer>> u) {
-					while(u.size()<numStates){
+					while(u.size()<getNumStates()){
 						u.add(new ArrayList<Integer>());
 					}
 				}
@@ -256,7 +255,7 @@ public class FA {
 		ArrayList<Integer> currentStates = new ArrayList<Integer>();
 		currentStates.add(initialState);
 		applyInput("", currentStates, currentStates);
-		sortAndRemoveDups(currentStates, this.numStates);
+		sortAndRemoveDups(currentStates, this.getNumStates());
 		ArrayList<Integer> nextStates = new ArrayList<Integer>();
 		ArrayList<ArrayList<Integer>> createdSetsofStates = new ArrayList<ArrayList<Integer>>();
 		createdSetsofStates.add(currentStates);
@@ -279,7 +278,7 @@ public class FA {
 					nextStates.clear();
 					applyInput(t, states, nextStates);
 					applyInput("", nextStates, nextStates);
-					sortAndRemoveDups(nextStates, numStates);
+					sortAndRemoveDups(nextStates, getNumStates());
 					//System.out.print("    "+ states + " " + currentStateCopy + " -(" + t + ")->" + nextStates);
 					int dstIndex = createdSetsofStates.indexOf(nextStates);
 					if(dstIndex == -1){
@@ -424,7 +423,7 @@ public class FA {
 				for(int fa = 0; fa < fas.length; fa++){
 					fas[fa].applyInput(symbol, currentStates.get(fa), nextStates.get(fa));
 					fas[fa].applyInput("", nextStates.get(fa), nextStates.get(fa));
-					sortAndRemoveDups(nextStates.get(fa), fas[fa].numStates);
+					sortAndRemoveDups(nextStates.get(fa), fas[fa].getNumStates());
 				}
 				//System.out.print("    "+ currentStates + " " + currentState + " -(" + symbol + ")->" + nextStates);
 				int dstIndex = createdSetsofStates.indexOf(nextStates);
@@ -503,7 +502,7 @@ public class FA {
 		os.println("digraph {");
 		os.println("\trankdir=LR;");
 		os.println("\tnode [shape=point,color=white,fontcolor=white]; start;");
-		for (int currentState = 0; currentState < numStates; currentState++) {
+		for (int currentState = 0; currentState < getNumStates(); currentState++) {
 			if (isFinal(currentState))
 				os.print("\tnode [shape=doublecircle, color=black, fontcolor=black]; ");
 			else
@@ -512,8 +511,8 @@ public class FA {
 		}
 		os.println("\tstart -> q" + initialState + ";");
 		ArrayList<String> symbols = new ArrayList<String>();
-		for (int currentState = 0; currentState < numStates; currentState++) {
-			for (int dstState = 0; dstState < numStates; dstState++) {
+		for (int currentState = 0; currentState < getNumStates(); currentState++) {
+			for (int dstState = 0; dstState < getNumStates(); dstState++) {
 				symbols.clear();
 				final int currentCopy = currentState;
 				final int dstCopy = dstState;
@@ -551,7 +550,7 @@ public class FA {
 	 */
 	public static FA join(FA a, FA b){
 		FA out = new FA();
-		out.numStates = a.numStates + b.numStates;
+		out.setNumStates(a.getNumStates() + b.getNumStates());
 		/*for(int i = 0; i < a.finalStates.size(); i++){
 			out.addFinalState(a.finalStates.get(i));
 		}
@@ -561,7 +560,7 @@ public class FA {
 		ArrayList<String> alphabet = alphabetSuperset(a,b);
 		for(String s : alphabet){
 			ArrayList<ArrayList<Integer>> trans = new ArrayList<ArrayList<Integer>>();
-			for(int i = 0; i < out.numStates; i++)
+			for(int i = 0; i < out.getNumStates(); i++)
 				trans.add(new ArrayList<Integer>());
 			out.delta.put(s, trans);
 		}
@@ -581,9 +580,9 @@ public class FA {
 				for(int i = 0; i < u.size(); i++){
 					ArrayList<Integer> copy = new ArrayList<Integer>(u.get(i));
 					for(int j = 0; j < copy.size(); j++){
-						copy.set(j, copy.get(j) + a.numStates);
+						copy.set(j, copy.get(j) + a.getNumStates());
 					}
-					trans.get(i+a.numStates).addAll(copy);
+					trans.get(i+a.getNumStates()).addAll(copy);
 				}
 			}
 		});
@@ -600,10 +599,10 @@ public class FA {
 	public static FA cat(FA a, FA b){
 		FA out = join(a,b);
 		for(Integer i : a.finalStates){
-			out.addTransition("", i, b.initialState + a.numStates);
+			out.addTransition("", i, b.initialState + a.getNumStates());
 		}
 		for(int i = 0; i < b.finalStates.size(); i++){
-			out.addFinalState(b.finalStates.get(i)+a.numStates);
+			out.addFinalState(b.finalStates.get(i)+a.getNumStates());
 		}
 		return out;
 	}
@@ -633,15 +632,15 @@ public class FA {
 	 */
 	public static FA quickUnion(FA a, FA b){
 		FA out = FA.join(a,b);
-		out.initialState = out.numStates;
+		out.initialState = out.getNumStates();
 		out.incNumStates();
 		out.addTransition("", out.initialState, a.initialState);
-		out.addTransition("", out.initialState, b.initialState+a.numStates);
+		out.addTransition("", out.initialState, b.initialState+a.getNumStates());
 		for(int i = 0; i < a.finalStates.size(); i++){
 			out.addFinalState(a.finalStates.get(i));
 		}
 		for(int i = 0; i < b.finalStates.size(); i++){
-			out.addFinalState(b.finalStates.get(i)+a.numStates);
+			out.addFinalState(b.finalStates.get(i)+a.getNumStates());
 		}
 		return out;
 	}
@@ -656,11 +655,11 @@ public class FA {
 			toMinimize = this.toDFA();
 		else toMinimize = this;
 		//System.out.println("Minimizing");
-		boolean[][] distinct = new boolean[this.numStates][this.numStates];
+		boolean[][] distinct = new boolean[this.getNumStates()][this.getNumStates()];
 		
 		//initialize matrix
-		for (int i = 0; i < toMinimize.numStates - 1; i++) {
-			for (int j = i + 1; j < toMinimize.numStates; j++) {
+		for (int i = 0; i < toMinimize.getNumStates() - 1; i++) {
+			for (int j = i + 1; j < toMinimize.getNumStates(); j++) {
 				boolean iFinal = toMinimize.isFinal(i);
 				boolean jFinal = toMinimize.isFinal(j);
 				if (iFinal != jFinal) {
@@ -671,12 +670,24 @@ public class FA {
 		}
 		boolean changed;
 		do {
-			//for (int n = 0; n < distinct.length; n++)
-				//System.out.println(Arrays.toString(distinct[n]));
-			//System.out.println("\n\n");
+			System.out.print("  ");
+			for (int n = 0; n < distinct.length; n++){
+				System.out.print(n + " ");
+			}
+			System.out.println();
+			for (int n = 0; n < distinct.length; n++){
+				System.out.print(n+" ");
+				for (int n1 = 0; n1 < distinct[n].length; n1++){
+					if(!distinct[n][n1] && n1 > n)
+						System.out.print("X ");
+					else System.out.print("  ");
+				}
+				System.out.println();
+			}	
+			System.out.println("\n\n");
 			changed = false;
-			for (int i = 0; i < toMinimize.numStates - 1; i++) {
-				for (int j = i + 1; j < toMinimize.numStates; j++) {
+			for (int i = 0; i < toMinimize.getNumStates() - 1; i++) {
+				for (int j = i + 1; j < toMinimize.getNumStates(); j++) {
 					if (!distinct[i][j]) {
 						Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta
 								.entrySet().iterator();
@@ -700,7 +711,7 @@ public class FA {
 		
 		ArrayList<Pair<Pair<Integer, Integer>, ArrayList<Integer>>> equivalentSets = new ArrayList<>();
 		
-		for (int i = 0; i < toMinimize.numStates; i++) {
+		for (int i = 0; i < toMinimize.getNumStates(); i++) {
 			int equivalent = 0;
 			for (; equivalent < equivalentSets.size(); equivalent++) {
 				if (!distinct[i][equivalentSets.get(equivalent).left.right]) 
@@ -710,7 +721,7 @@ public class FA {
 				//System.out.println("Adding state " + i + " as state " + out.numStates);
 				ArrayList<Integer> temp = new ArrayList<Integer>();
 				temp.add(i);
-				equivalentSets.add(new Pair<Pair<Integer, Integer>, ArrayList<Integer>>(new Pair<Integer, Integer>(out.numStates, i), temp));
+				equivalentSets.add(new Pair<Pair<Integer, Integer>, ArrayList<Integer>>(new Pair<Integer, Integer>(out.getNumStates(), i), temp));
 				out.incNumStates();
 			} else {
 				equivalentSets.get(equivalent).right.add(i);
@@ -810,8 +821,8 @@ public class FA {
 			out.finalStates.add(out.initialState);
 		}else {
 			out.incNumStates();
-			out.addTransition(symbol, out.initialState, out.numStates-1);
-			out.finalStates.add(out.numStates-1);
+			out.addTransition(symbol, out.initialState, out.getNumStates()-1);
+			out.finalStates.add(out.getNumStates()-1);
 		}
 		return out;
 	}
@@ -820,7 +831,7 @@ public class FA {
 		FA out = new FA();
 		out.initialState = 0;
 		out.incNumStates();
-		out.numStates += this.numStates;
+		out.setNumStates(out.getNumStates() + this.getNumStates());
 		Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<String, ArrayList<ArrayList<Integer>>> pair = (Map.Entry<String, ArrayList<ArrayList<Integer>>>) it.next();
@@ -846,11 +857,19 @@ public class FA {
 		else toconvert = this;
 		FA out = new FA(toconvert);
 		out.finalStates.clear();
-		for(int i = 0; i < out.numStates; i++){
+		for(int i = 0; i < out.getNumStates(); i++){
 			if(!toconvert.isFinal(i))
 				out.finalStates.add(i);
 		}
 		return out;
+	}
+
+	public int getNumStates() {
+		return numStates;
+	}
+
+	public void setNumStates(int numStates) {
+		this.numStates = numStates;
 	}
 }
 

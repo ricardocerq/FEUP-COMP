@@ -2,7 +2,7 @@
 /*@egen*//**
  * JJTree template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
  */options{
-  LOOKAHEAD = 2;  static = true;}PARSER_BEGIN(RegexParser)package regexparser;
+  LOOKAHEAD = 1;  static = true;}PARSER_BEGIN(RegexParser)package regexparser;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -81,19 +81,26 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants/*@e
 | < PLUS : "+">
 | < EPSILON : "!">
 | < SYM : ~["(",")","*","+","!"] >
-}SimpleNode Start() :{/*@bgen(jjtree) Start */
+}
+SimpleNode Start() :
+{/*@bgen(jjtree) Start */
   SimpleNode jjtn000 = new SimpleNode(JJTSTART);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/}{/*@bgen(jjtree) Start */
+/*@egen*/}
+{/*@bgen(jjtree) Start */
   try {
-/*@egen*/  Expression() (< ENDL >| < EOF >)/*@bgen(jjtree)*/
+/*@egen*/
+  Expression() (< ENDL >| < EOF >)/*@bgen(jjtree)*/
   {
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
   }
 /*@egen*/ 
-    {    return jjtn000;  }/*@bgen(jjtree)*/
+  
+  {
+    return jjtn000;
+  }/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -113,7 +120,10 @@ public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants/*@e
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/}void Expression()      :
+/*@egen*/
+}
+
+void Expression()      :
 {}
 {
   Expression1() [ < PLUS > Expression()/*@bgen(jjtree) #Op( 2) */
@@ -199,12 +209,16 @@ void Terminal()          :
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
   }
-/*@egen*/  {
-    jjtn000.symbol = t.image;  }/*@bgen(jjtree)*/
+/*@egen*/
+  {
+    jjtn000.symbol = t.image;
+  }/*@bgen(jjtree)*/
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/}
+/*@egen*/
+}
+
 

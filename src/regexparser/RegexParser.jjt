@@ -5,10 +5,9 @@
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
 import faops.FA;
 import stmtparser.Operations;
-import gui.FADrawer;
+
 public class RegexParser{  public static void main(String args [])  {
     new RegexParser(System.in);
     while (true)

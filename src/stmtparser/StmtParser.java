@@ -2,7 +2,6 @@
 package stmtparser;
 import faops.FA;
 import fileparser.FileParser;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,7 +10,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-
 import gui.FADrawer;
 import regexparser.RegexParser;
 

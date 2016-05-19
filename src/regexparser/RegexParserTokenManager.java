@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import faops.FA;
 import stmtparser.Operations;
-import gui.FADrawer;
 
 /** Token Manager. */
 public class RegexParserTokenManager implements RegexParserConstants

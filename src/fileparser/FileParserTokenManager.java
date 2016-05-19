@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import faops.FA;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /** Token Manager. */
 public class FileParserTokenManager implements FileParserConstants

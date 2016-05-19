@@ -3,10 +3,9 @@ package regexparser;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
 import faops.FA;
 import stmtparser.Operations;
-import gui.FADrawer;
+
 public class RegexParser/*@bgen(jjtree)*/implements RegexParserTreeConstants, RegexParserConstants {/*@bgen(jjtree)*/
   protected static JJTRegexParserState jjtree = new JJTRegexParserState();public static void main(String args [])
   {

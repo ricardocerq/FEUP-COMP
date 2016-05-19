@@ -7,11 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-
 import faops.FA;
-
 import java.util.ArrayList;
-import java.util.Arrays;
+
 public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, FileParserConstants {/*@bgen(jjtree)*/
   protected static JJTFileParserState jjtree = new JJTFileParserState();public static void main(String args []) throws FileNotFoundException
   {

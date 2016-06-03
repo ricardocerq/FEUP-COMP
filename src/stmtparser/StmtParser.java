@@ -138,7 +138,14 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
                         break;
                 default:
                         for(int i = 0; i < node.jjtGetNumChildren(); i++){
+                          try
+                  {
                           eval((SimpleNode)node.jjtGetChild(i));
+                          }
+                          catch (Throwable e)
+                      {
+                        System.out.println("[ERROR] - " + e.getMessage());
+                      }
                         }
     }
         return out;
@@ -662,14 +669,14 @@ try {ParseException e = generateParseException();  // generate the exception obj
     finally { jj_save(0, xla); }
   }
 
-  static private boolean jj_3_1() {
-    if (jj_3R_2()) return true;
-    return false;
-  }
-
   static private boolean jj_3R_2() {
     if (jj_scan_token(SYM)) return true;
     if (jj_scan_token(EQUALS)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_1() {
+    if (jj_3R_2()) return true;
     return false;
   }
 

@@ -111,8 +111,10 @@ public class ParseException extends Exception {
         retval += tokenImage[0];
         break;
       }
-      retval += tokenImage[tok.kind];
-      retval += " *" + add_escapes(tok.image) + "*";
+      retval += " " + tokenImage[tok.kind];
+      retval += " \"";
+      retval += add_escapes(tok.image);
+      retval += " \"";
       tok = tok.next;
     }
     retval += "\" at line " + currentToken.next.beginLine + ", column " + currentToken.next.beginColumn;
@@ -123,13 +125,6 @@ public class ParseException extends Exception {
       retval += "Was expecting one of:" + eol + "    ";
     }
     retval += expected.toString();
-    retval += "\n\n\n";
-    for(int i = 0; i < expectedTokenSequences.length; i++){
-    	for(int j = 0; j < expectedTokenSequences[i].length; j++){
-        	retval += tokenImage[expectedTokenSequences[i][j]];
-        }
-    	retval += "\n\n";
-    }
     return retval;
   }
 

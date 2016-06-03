@@ -153,18 +153,6 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
       label_1:
       while (true) {
         Stmt();
-        label_2:
-        while (true) {
-          jj_consume_token(END_STMT);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case END_STMT:
-            ;
-            break;
-          default:
-            jj_la1[0] = jj_gen;
-            break label_2;
-          }
-        }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case OPEN:
         case NEW:
@@ -181,7 +169,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
           ;
           break;
         default:
-          jj_la1[1] = jj_gen;
+          jj_la1[0] = jj_gen;
           break label_1;
         }
       }
@@ -211,43 +199,51 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     throw new Error("Missing return statement in function");
   }
 
-  static final public void Stmt() throws ParseException {
-                    String decl = null;
-    SimpleNode jjtn001 = (SimpleNode)StmtNodeFactory.jjtCreate(JJTASSIGN);
-    boolean jjtc001 = true;
-    jjtree.openNodeScope(jjtn001);
+  static final public boolean Stmt() throws ParseException {
+                       String decl = null;
     try {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case FA:
-        decl = Decl();
-        break;
-      default:
-        jj_la1[2] = jj_gen;
-        ;
+     SimpleNode jjtn001 = (SimpleNode)StmtNodeFactory.jjtCreate(JJTASSIGN);
+     boolean jjtc001 = true;
+     jjtree.openNodeScope(jjtn001);
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case FA:
+          decl = Decl();
+          break;
+        default:
+          jj_la1[1] = jj_gen;
+          ;
+        }
+        Expression0();
+                                    jjtree.closeNodeScope(jjtn001,  decl != null);
+                                    jjtc001 = false;
+                                   ((AssignNode)jjtn001).varName = decl; ((AssignNode)jjtn001).decl = true;
+      } catch (Throwable jjte001) {
+     if (jjtc001) {
+       jjtree.clearNodeScope(jjtn001);
+       jjtc001 = false;
+     } else {
+       jjtree.popNode();
+     }
+     if (jjte001 instanceof RuntimeException) {
+       {if (true) throw (RuntimeException)jjte001;}
+     }
+     if (jjte001 instanceof ParseException) {
+       {if (true) throw (ParseException)jjte001;}
+     }
+     {if (true) throw (Error)jjte001;}
+      } finally {
+     if (jjtc001) {
+       jjtree.closeNodeScope(jjtn001,  decl != null);
+     }
       }
-      Expression0();
-                                   jjtree.closeNodeScope(jjtn001,  decl != null);
-                                   jjtc001 = false;
-                                  ((AssignNode)jjtn001).varName = decl; ((AssignNode)jjtn001).decl = true;
-    } catch (Throwable jjte001) {
-    if (jjtc001) {
-      jjtree.clearNodeScope(jjtn001);
-      jjtc001 = false;
-    } else {
-      jjtree.popNode();
+      jj_consume_token(END_STMT);
+    } catch (ParseException e) {
+        error_skipto(END_STMT);
+        {if (true) return false;}
     }
-    if (jjte001 instanceof RuntimeException) {
-      {if (true) throw (RuntimeException)jjte001;}
-    }
-    if (jjte001 instanceof ParseException) {
-      {if (true) throw (ParseException)jjte001;}
-    }
-    {if (true) throw (Error)jjte001;}
-    } finally {
-    if (jjtc001) {
-      jjtree.closeNodeScope(jjtn001,  decl != null);
-    }
-    }
+ {if (true) return true;}
+    throw new Error("Missing return statement in function");
   }
 
   static final public void Expression0() throws ParseException {
@@ -270,7 +266,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
         Expression();
         break;
       default:
-        jj_la1[3] = jj_gen;
+        jj_la1[2] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -298,7 +294,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
       }
       break;
     default:
-      jj_la1[4] = jj_gen;
+      jj_la1[3] = jj_gen;
       ;
     }
   }
@@ -356,7 +352,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
           }
           break;
         default:
-          jj_la1[5] = jj_gen;
+          jj_la1[4] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -380,13 +376,13 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
         }
         break;
       default:
-        jj_la1[6] = jj_gen;
+        jj_la1[5] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[7] = jj_gen;
+      jj_la1[6] = jj_gen;
       ;
     }
   }
@@ -415,7 +411,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
       New();
       break;
     default:
-      jj_la1[8] = jj_gen;
+      jj_la1[7] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -543,7 +539,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
         t = jj_consume_token(DRAW);
         break;
       default:
-        jj_la1[9] = jj_gen;
+        jj_la1[8] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -586,7 +582,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
         t = jj_consume_token(FROMREGEX);
         break;
       default:
-        jj_la1[10] = jj_gen;
+        jj_la1[9] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -635,12 +631,28 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
       t = jj_consume_token(XOR);
       break;
     default:
-      jj_la1[11] = jj_gen;
+      jj_la1[10] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
     {if (true) return t.image;}
     throw new Error("Missing return statement in function");
+  }
+
+  static void error_skipto(int kind) throws ParseException {
+                             /*@bgen(jjtree) error_skipto */
+SimpleNode jjtn000 = (SimpleNode)StmtNodeFactory.jjtCreate(JJTERROR_SKIPTO);
+boolean jjtc000 = true;
+jjtree.openNodeScope(jjtn000);
+try {ParseException e = generateParseException();  // generate the exception object.  System.out.println(e.toString());  // print the error message  Token t;
+  do {
+    t = getNextToken();
+  } while (t.kind != kind);/*@bgen(jjtree)*/
+} finally {
+  if (jjtc000) {
+    jjtree.closeNodeScope(jjtn000, true);
+  }
+}
   }
 
   static private boolean jj_2_1(int xla) {
@@ -650,14 +662,14 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     finally { jj_save(0, xla); }
   }
 
-  static private boolean jj_3R_3() {
-    if (jj_scan_token(SYM)) return true;
-    if (jj_scan_token(EQUALS)) return true;
+  static private boolean jj_3_1() {
+    if (jj_3R_2()) return true;
     return false;
   }
 
-  static private boolean jj_3_1() {
-    if (jj_3R_3()) return true;
+  static private boolean jj_3R_2() {
+    if (jj_scan_token(SYM)) return true;
+    if (jj_scan_token(EQUALS)) return true;
     return false;
   }
 
@@ -673,13 +685,13 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
   static private Token jj_scanpos, jj_lastpos;
   static private int jj_la;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[12];
+  static final private int[] jj_la1 = new int[11];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x20000000,0xb70e340,0x100000,0xb60e340,0x20000,0xb60eb40,0x90c00,0x90c00,0xb60e340,0x360e000,0x300,0x90400,};
+      jj_la1_0 = new int[] {0xb70e340,0x100000,0xb60e340,0x20000,0xb60eb40,0x90c00,0x90c00,0xb60e340,0x360e000,0x300,0x90400,};
    }
   static final private JJCalls[] jj_2_rtns = new JJCalls[1];
   static private boolean jj_rescan = false;
@@ -703,7 +715,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -719,7 +731,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -737,7 +749,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -749,7 +761,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -766,7 +778,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -777,7 +789,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -894,7 +906,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 11; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

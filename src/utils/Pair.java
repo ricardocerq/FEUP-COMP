@@ -1,4 +1,4 @@
-package faops;
+package utils;
 
 public class Pair<L, R> {
 	public L left;

@@ -11,19 +11,27 @@ import faops.FA;
 import java.util.ArrayList;
 
 public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, FileParserConstants {/*@bgen(jjtree)*/
-  protected static JJTFileParserState jjtree = new JJTFileParserState();public static void main(String args []) throws FileNotFoundException
+  protected static JJTFileParserState jjtree = new JJTFileParserState();public static FileInputStream getFile(String filename)  throws FileNotFoundException
+  {
+        return new FileInputStream(new File(FileParser.class.getResource(filename).getPath()));
+  }
+  public static PrintStream outFile(String filename)  throws FileNotFoundException
+  {
+        return new PrintStream(new FileOutputStream(filename, false));
+  }
+  public static void main(String args []) throws FileNotFoundException
   {
     System.out.println("Reading from standard input...");
     SimpleNode n1;
     SimpleNode n2;
-    FileParser fp = new FileParser(new FileInputStream(new File(FileParser.class.getResource("product1.dot").getPath())));
+    FileParser fp = new FileParser(getFile("product1.dot"));
     try {
                 n1 = FileParser.Start();
         } catch (ParseException e1) {
                 e1.printStackTrace();
                 return;
         }
-    FileParser.ReInit(new FileInputStream(new File(FileParser.class.getResource("product2.dot").getPath())));
+    FileParser.ReInit(getFile("product2.dot"));
     try {
                 n2 = FileParser.Start();
         } catch (ParseException e1) {
@@ -96,7 +104,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
  public static int lookup(FA fa, String state, ArrayList < String > stateNames){
           int index = stateNames.indexOf(state);
       if (index == - 1){
-                System.out.println("Added state " + state + " as " + stateNames.size());
+                //System.out.println("Added state " + state + " as " + stateNames.size());
           stateNames.add(state);
           fa.incNumStates();
           return stateNames.size() - 1;
@@ -126,7 +134,7 @@ public class FileParser/*@bgen(jjtree)*/implements FileParserTreeConstants, File
                     if (stateNode.isFinalState)
                         fa.addFinalState(stateNames.size());
                     stateNames.add(name);
-                    System.out.println("Added state " + name + " as " + (stateNames.size() - 1));
+                   // System.out.println("Added state " + name + " as " + (stateNames.size() - 1));
                 }
               }
               break;

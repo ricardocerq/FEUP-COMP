@@ -16,6 +16,7 @@ import java.util.function.BiConsumer;
 
 import faops.BooleanOperation.BinaryBooleanOperation;
 import stmtparser.SimpleNode;
+import utils.Pair;
 
 public class FA {
 	private int initialState;
@@ -670,7 +671,7 @@ public class FA {
 		}
 		boolean changed;
 		do {
-			System.out.print("  ");
+			/*System.out.print("  ");
 			for (int n = 0; n < distinct.length; n++){
 				System.out.print(n + " ");
 			}
@@ -684,7 +685,7 @@ public class FA {
 				}
 				System.out.println();
 			}	
-			System.out.println("\n\n");
+			System.out.println("\n\n");*/
 			changed = false;
 			for (int i = 0; i < toMinimize.getNumStates() - 1; i++) {
 				for (int j = i + 1; j < toMinimize.getNumStates(); j++) {

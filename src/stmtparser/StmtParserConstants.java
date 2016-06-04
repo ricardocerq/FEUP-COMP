@@ -19,37 +19,37 @@ public interface StmtParserConstants {
   /** RegularExpression Id. */
   int FROMREGEX = 9;
   /** RegularExpression Id. */
-  int MUL = 10;
+  int DOT = 10;
   /** RegularExpression Id. */
-  int DOT = 11;
+  int EQUALS = 11;
   /** RegularExpression Id. */
-  int EQUALS = 12;
+  int REV = 12;
   /** RegularExpression Id. */
-  int REV = 13;
+  int NOT = 13;
   /** RegularExpression Id. */
-  int NOT = 14;
+  int STAR = 14;
   /** RegularExpression Id. */
-  int STAR = 15;
+  int INT = 15;
   /** RegularExpression Id. */
-  int INT = 16;
+  int UN = 16;
   /** RegularExpression Id. */
-  int UN = 17;
+  int DIF = 17;
   /** RegularExpression Id. */
-  int DIF = 18;
+  int XOR = 18;
   /** RegularExpression Id. */
-  int XOR = 19;
+  int FA = 19;
   /** RegularExpression Id. */
-  int FA = 20;
+  int TODFA = 20;
   /** RegularExpression Id. */
-  int TODFA = 21;
+  int MIN = 21;
   /** RegularExpression Id. */
-  int MIN = 22;
+  int DUMP = 22;
   /** RegularExpression Id. */
-  int DUMP = 23;
+  int PRINT = 23;
   /** RegularExpression Id. */
-  int PRINT = 24;
+  int DRAW = 24;
   /** RegularExpression Id. */
-  int DRAW = 25;
+  int TEST = 25;
   /** RegularExpression Id. */
   int STRINGDELIM = 26;
   /** RegularExpression Id. */
@@ -76,7 +76,6 @@ public interface StmtParserConstants {
     "\")\"",
     "\"new\"",
     "\"fromRegex\"",
-    "\"x\"",
     "\".\"",
     "\"=\"",
     "\"rev\"",
@@ -92,6 +91,7 @@ public interface StmtParserConstants {
     "\"dump\"",
     "\"print\"",
     "\"draw\"",
+    "\"test\"",
     "\"\\\"\"",
     "<SYM>",
     "<STRING>",

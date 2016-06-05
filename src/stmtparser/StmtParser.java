@@ -2,7 +2,6 @@
 package stmtparser;
 import faops.FA;
 import fileparser.FileParser;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,21 +11,37 @@ import java.io.PrintStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
-
 import gui.FADrawer;
 import regexparser.RegexParser;
-
 import java.util.Scanner;
+import java.util.NoSuchElementException;
 
 public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, StmtParserConstants {/*@bgen(jjtree)*/
   protected static JJTStmtParserState jjtree = new JJTStmtParserState();private static Map<String, FA> vars = new HashMap< String, FA>();
   private static int drawNumber = 0;
-  public static void main(String args [])
-  {
-    new StmtParser(System.in);
-    new FileParser(System.in);
-    new RegexParser(System.in);
+
+  private InputStream in;
+  public StmtParser(String file) {
+
+        try {
+                if(file != null){
+                        this.in = new FileInputStream(file);
+                }else{
+                        this.in = System.in;
+                }
+        }catch(FileNotFoundException e) {
+                this.in = System.in;
+        }
+  }
+
+  public StmtParser() {
+        this.in = System.in;
+  }
+
+  public void run(){
+        new StmtParser(in);
+    new FileParser(in);
+    new RegexParser(in);
     while (true)
     {
       try
@@ -37,12 +52,12 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
         n.dump("");
         System.out.println("\u005cn");
                 eval(n);
-        StmtParser.ReInit(System.in);
+        StmtParser.ReInit(in);
       }
       catch (Throwable e)
       {
         System.out.println("[ERROR] - " + e.getMessage());
-        StmtParser.ReInit(System.in);
+        StmtParser.ReInit(in);
         try {
                         System.in.skip(1000);
                 } catch (IOException e1) {
@@ -50,6 +65,17 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
                 }
       }
     }
+  }
+
+  public static void main(String args [])
+  {
+        StmtParser parser;
+        if(args.length > 0)
+                parser = new StmtParser(args[0]);
+        else
+                parser = new StmtParser();
+        parser.run();
+
   }
   public static FileInputStream getFile(String filename)  throws FileNotFoundException
   {
@@ -95,11 +121,11 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
                      Scanner scanner = new Scanner(is);
                      String s;
                      try{
-	                     while((s = scanner.nextLine()) != null && !s.equals("$")){
-	                          System.out.println(out.process(s.split(""))? "yes": "no");
-	                     }
+                             while((s = scanner.nextLine()) != null && !s.equals("$")){
+                                  System.out.println(out.process(s.split(""))? "yes": "no");
+                             }
                      } catch(NoSuchElementException e){
-                    	 
+
                      }
                      System.out.println("Finished Testing");
                                 }
@@ -707,14 +733,14 @@ try {ParseException e = generateParseException();  // generate the exception obj
     finally { jj_save(0, xla); }
   }
 
-  static private boolean jj_3R_2() {
-    if (jj_scan_token(SYM)) return true;
-    if (jj_scan_token(EQUALS)) return true;
+  static private boolean jj_3_1() {
+    if (jj_3R_2()) return true;
     return false;
   }
 
-  static private boolean jj_3_1() {
-    if (jj_3R_2()) return true;
+  static private boolean jj_3R_2() {
+    if (jj_scan_token(SYM)) return true;
+    if (jj_scan_token(EQUALS)) return true;
     return false;
   }
 

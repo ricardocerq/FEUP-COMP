@@ -648,12 +648,13 @@ public class FA {
 	/**
 	 * 	Generates a minimized FA that matches the current FA
 	 * 	@return 	minimized FA
+	 * @throws FAException 
 	 */
-	public FA minimized(){
+	public FA minimized() throws FAException{
 		FA out = new FA();
 		FA toMinimize = null;
-		if(!this.isDFA)
-			toMinimize = this.toDFA();
+		if(!this.isDFA())
+			throw new FAException("FA must be DFA to be minimized !");
 		else toMinimize = this;
 		//System.out.println("Minimizing");
 		boolean[][] distinct = new boolean[this.getNumStates()][this.getNumStates()];
@@ -671,21 +672,6 @@ public class FA {
 		}
 		boolean changed;
 		do {
-			/*System.out.print("  ");
-			for (int n = 0; n < distinct.length; n++){
-				System.out.print(n + " ");
-			}
-			System.out.println();
-			for (int n = 0; n < distinct.length; n++){
-				System.out.print(n+" ");
-				for (int n1 = 0; n1 < distinct[n].length; n1++){
-					if(!distinct[n][n1] && n1 > n)
-						System.out.print("X ");
-					else System.out.print("  ");
-				}
-				System.out.println();
-			}	
-			System.out.println("\n\n");*/
 			changed = false;
 			for (int i = 0; i < toMinimize.getNumStates() - 1; i++) {
 				for (int j = i + 1; j < toMinimize.getNumStates(); j++) {
@@ -728,24 +714,12 @@ public class FA {
 				equivalentSets.get(equivalent).right.add(i);
 			}
 		}
-		
-		/*for (int j = 0; j < equivalentSets.size(); j++) {
-			for (int n = 0; n < equivalentSets.get(j).right.size(); n++) {
-				System.out.print(equivalentSets.get(j).right.get(n) + ", ");
-			}
-			System.out.println("\n");
-		}*/
+	
 		Iterator<Entry<String, ArrayList<ArrayList<Integer>>>> it = delta.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<String, ArrayList<ArrayList<Integer>>> pair = (Map.Entry<String, ArrayList<ArrayList<Integer>>>) it.next();
 			String t = pair.getKey();
 			ArrayList<ArrayList<Integer>> u = pair.getValue();
-			/*for (int i = 0; i < pairs.size(); i++) {
-				for (int j = 0; j < pairs.size(); j++) {
-					if (u.get(pairs.get(i).get(0)).get(0).equals(pairs.get(0)))
-						out.addTransition(t, pairs.get(i).get(1), pairs.get(j).get(0));
-				}
-			}*/
 			for(int i = 0; i < u.size(); i++){
 				int newi = findNewState(i,equivalentSets);
 				if(newi == -1){

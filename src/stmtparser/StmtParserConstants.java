@@ -60,6 +60,8 @@ public interface StmtParserConstants {
   int END_STMT = 29;
   /** RegularExpression Id. */
   int ENDL = 30;
+  /** RegularExpression Id. */
+  int OTHER = 31;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -97,6 +99,7 @@ public interface StmtParserConstants {
     "<STRING>",
     "\";\"",
     "\"\\n\"",
+    "<OTHER>",
   };
 
 }

@@ -355,7 +355,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
       }
       jj_consume_token(END_STMT);
     } catch (ParseException e) {
-        error_skipto(END_STMT);
+        skip(END_STMT);
         {if (true) return false;}
     }
  {if (true) return true;}
@@ -761,20 +761,13 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     throw new Error("Missing return statement in function");
   }
 
-  static void error_skipto(int kind) throws ParseException {
-                             /*@bgen(jjtree) error_skipto */
-SimpleNode jjtn000 = (SimpleNode)StmtNodeFactory.jjtCreate(JJTERROR_SKIPTO);
-boolean jjtc000 = true;
-jjtree.openNodeScope(jjtn000);
-try {ParseException e = generateParseException();  // generate the exception object.  System.out.println(e.toString());  // print the error message  Token t;
+  static final public void skip(int kind) throws ParseException {
+  ParseException e = generateParseException();
+  System.out.println(e.toString());
+  Token t;
   do {
     t = getNextToken();
-  } while (t.kind != kind);/*@bgen(jjtree)*/
-} finally {
-  if (jjtc000) {
-    jjtree.closeNodeScope(jjtn000, true);
-  }
-}
+  } while (t.kind != kind);
   }
 
   static private boolean jj_2_1(int xla) {
@@ -1023,7 +1016,7 @@ try {ParseException e = generateParseException();  // generate the exception obj
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[31];
+    boolean[] la1tokens = new boolean[32];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -1037,7 +1030,7 @@ try {ParseException e = generateParseException();  // generate the exception obj
         }
       }
     }
-    for (int i = 0; i < 31; i++) {
+    for (int i = 0; i < 32; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

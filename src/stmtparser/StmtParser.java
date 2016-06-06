@@ -2,7 +2,6 @@
 package stmtparser;
 import faops.FA;
 import fileparser.FileParser;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,12 +11,10 @@ import java.io.PrintStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
-
 import gui.FADrawer;
 import regexparser.RegexParser;
-
 import java.util.Scanner;
+import java.util.NoSuchElementException;
 
 public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, StmtParserConstants {/*@bgen(jjtree)*/
   protected static JJTStmtParserState jjtree = new JJTStmtParserState();private static Map<String, FA> vars = new HashMap< String, FA>();
@@ -95,11 +92,11 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
                      Scanner scanner = new Scanner(is);
                      String s;
                      try{
-	                     while((s = scanner.nextLine()) != null && !s.equals("$")){
-	                          System.out.println(out.process(s.split(""))? "yes": "no");
-	                     }
+                             while((s = scanner.nextLine()) != null && !s.equals("$")){
+                                  System.out.println(out.process(s.split(""))? "yes": "no");
+                             }
                      } catch(NoSuchElementException e){
-                    	 
+
                      }
                      System.out.println("Finished Testing");
                                 }
@@ -278,7 +275,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
       }
       jj_consume_token(END_STMT);
     } catch (ParseException e) {
-        error_skipto(END_STMT);
+        skip(END_STMT);
         {if (true) return false;}
     }
  {if (true) return true;}
@@ -684,12 +681,14 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants, Stmt
     throw new Error("Missing return statement in function");
   }
 
-  static void error_skipto(int kind) throws ParseException {
-                             /*@bgen(jjtree) error_skipto */
-SimpleNode jjtn000 = (SimpleNode)StmtNodeFactory.jjtCreate(JJTERROR_SKIPTO);
+  static void skip(int kind) throws ParseException {
+                     /*@bgen(jjtree) skip */
+SimpleNode jjtn000 = (SimpleNode)StmtNodeFactory.jjtCreate(JJTSKIP);
 boolean jjtc000 = true;
 jjtree.openNodeScope(jjtn000);
-try {ParseException e = generateParseException();  // generate the exception object.  System.out.println(e.toString());  // print the error message  Token t;
+try {ParseException e = generateParseException();
+  System.out.println(e.toString());
+  Token t;
   do {
     t = getNextToken();
   } while (t.kind != kind);/*@bgen(jjtree)*/

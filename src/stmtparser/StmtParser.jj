@@ -89,7 +89,7 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants/*@ege
        jjtree.closeNodeScope(jjtn001,  decl != null);
      }
    }
-/*@egen*/                      ) < END_STMT > } catch(ParseException e) { 	error_skipto(END_STMT); 	return false; } {   return true; }}void Expression0()      : {String assign = null;}{  LOOKAHEAD(2)	//( assign = Assign()  Expression() {((AssignNode)jjtThis).varName = assign;}) #Assign(assign != null) )	Assign2()	| Expression()}void Expression()      : {String op;}{  (Expression2() [ (op = BinaryOpTier1()) Expression()/*@bgen(jjtree) #Op( 2) */
+/*@egen*/                      ) < END_STMT > } catch(ParseException e) { 	skip(END_STMT); 	return false; } {   return true; }}void Expression0()      : {String assign = null;}{  LOOKAHEAD(2)	//( assign = Assign()  Expression() {((AssignNode)jjtThis).varName = assign;}) #Assign(assign != null) )	Assign2()	| Expression()}void Expression()      : {String op;}{  (Expression2() [ (op = BinaryOpTier1()) Expression()/*@bgen(jjtree) #Op( 2) */
                                                        {
                                                          SimpleNode jjtn001 = (SimpleNode)StmtNodeFactory.jjtCreate(JJTOP);
                                                          boolean jjtc001 = true;
@@ -273,18 +273,18 @@ public class StmtParser/*@bgen(jjtree)*/implements StmtParserTreeConstants/*@ege
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/}String BinaryOpTier1()      : {Token t;}{  ( t = < UN > )  {    return t.image;  }   }String BinaryOpTier2()      : {Token t;}{  ( t = < INT >  | t = < XOR >)  {    return t.image;  }   }JAVACODEvoid error_skipto(int kind) {/*@bgen(jjtree) error_skipto */
-SimpleNode jjtn000 = (SimpleNode)StmtNodeFactory.jjtCreate(JJTERROR_SKIPTO);
+/*@egen*/}String BinaryOpTier1()      : {Token t;}{  ( t = < UN > )  {    return t.image;  }   }String BinaryOpTier2()      : {Token t;}{  ( t = < INT >  | t = < XOR >)  {    return t.image;  }   }JAVACODEvoid skip(int kind) {/*@bgen(jjtree) skip */
+SimpleNode jjtn000 = (SimpleNode)StmtNodeFactory.jjtCreate(JJTSKIP);
 boolean jjtc000 = true;
 jjtree.openNodeScope(jjtn000);
 try {
-/*@egen*/  ParseException e = generateParseException();  // generate the exception object.  System.out.println(e.toString());  // print the error message  Token t;  do {    t = getNextToken();  } while (t.kind != kind);/*@bgen(jjtree)*/
+/*@egen*/  ParseException e = generateParseException();    System.out.println(e.toString());  Token t;  do {    t = getNextToken();  } while (t.kind != kind);/*@bgen(jjtree)*/
 } finally {
   if (jjtc000) {
     jjtree.closeNodeScope(jjtn000, true);
   }
 }
-/*@egen*/    // The above loop consumes tokens all the way up to a token of    // "kind".  We use a do-while loop rather than a while because the    // current token is the one immediately before the erroneous token    // (in our case the token immediately before what should have been    // "if"/"while".}
+/*@egen*/}
 
 
 

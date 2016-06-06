@@ -1,1 +1,2 @@
-FA a = fromRegex("aaa*");
+FA a = fromRegex("aaa*");a.test("stdin"); aaaaa
+$

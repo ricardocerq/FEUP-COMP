@@ -1,3 +1,18 @@
 FA a = fromRegex("aa*");
-
 a.test("../test/wordset1.txt");
+
+FA intersection = fromRegex("a*b(a*b)*") int fromRegex("(a+b)(a+b)*");
+intersection.dump("intersection.dot");
+new("intersection.dot").test("../test/wordset3.txt");
+
+FA product = new("product.dot");
+product.test("../test/wordset4.txt");
+
+FA xorTest = fromRegex("aa*") xor fromRegex("aa*aaa");
+xorTest.test("../test/wordset5.txt");
+
+FA notTest = not(new("product2.dot"));
+notTest.test("../test/wordset6.txt");
+
+FA notTest2 = not(fromRegex("b*a"));
+notTest2.test("../test/wordset6.txt");

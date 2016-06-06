@@ -9,7 +9,6 @@ public interface StmtParserTreeConstants
   public int JJTOP = 3;
   public int JJTSTRING = 4;
   public int JJTSYMBOL = 5;
-  public int JJTSKIP = 6;
 
 
   public String[] jjtNodeName = {
@@ -19,7 +18,6 @@ public interface StmtParserTreeConstants
     "Op",
     "String",
     "Symbol",
-    "skip",
   };
 }
-/* JavaCC - OriginalChecksum=7d1975469ef242395b2441f928e5da8c (do not edit this line) */
+/* JavaCC - OriginalChecksum=5437a9fefdbb0a7b83c2200aa1f06d39 (do not edit this line) */

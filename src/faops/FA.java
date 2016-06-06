@@ -615,11 +615,14 @@ public class FA {
 	 */
 	public static FA star(FA a){
 		FA out = new FA(a);
+		int num = out.numStates;
+		out.incNumStates();
 		for(Integer i : a.finalStates){
-			out.addTransition("", i, a.initialState);
+			out.addTransition("", i, num);
 		}
-		if(!a.isFinal(a.initialState))
-			out.finalStates.add(a.initialState);
+		out.addTransition("", num, a.initialState);
+		out.initialState = num;
+		out.finalStates.add(num);
 		return out;
 	}
 

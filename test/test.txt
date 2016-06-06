@@ -1,2 +1,3 @@
-FA a = fromRegex("aaa*");a.test("stdin"); aaaaa
-$
+FA a = fromRegex("aa*");
+
+a.test("../test/wordset1.txt");

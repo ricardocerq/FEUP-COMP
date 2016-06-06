@@ -16,3 +16,5 @@ notTest.test("../test/wordset6.txt");
 
 FA notTest2 = not(fromRegex("b*a"));
 notTest2.test("../test/wordset6.txt");
+
+draw(intersection xor xorTest);
